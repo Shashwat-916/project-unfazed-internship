@@ -1,0 +1,19 @@
+{
+  "name": "@repo/minio",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./minio": "./index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.2",
+    "minio": "^8.0.7"
+  }
+}
