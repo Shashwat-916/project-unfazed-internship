@@ -22,6 +22,7 @@ export class AvailabilityController {
 
     CreateAvalability = AsyncHandler(
         async (req: AuthRequest, res: Response) => {
+
             const userId = req.user?.userId;
             if (!userId) {
                 return res.status(401).json({ success: false, message: "User not found" });
@@ -33,9 +34,12 @@ export class AvailabilityController {
             }
 
             const therapist = await this.avalabilityRepository.GetTherapistById(userId);
+
             if (!therapist) {
                 return res.status(404).json({ success: false, message: "Therapist not found" });
             }
+
+            
 
             const isValidTimeSlot = await this.avalabilityService.verifyTimeSlot(data.timeSlotId);
             if (!isValidTimeSlot) {

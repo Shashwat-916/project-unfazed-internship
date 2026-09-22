@@ -6,7 +6,7 @@ export class AvailabilityRespository {
     async GetTherapistById(userId: string) {
         const therapist = await prisma.therapist.findFirst({
             where: {
-                id: userId
+                userId: userId
             }
         })
         return therapist
