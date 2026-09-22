@@ -1,8 +1,6 @@
 import type { UserRole } from "@repo/types";
 
 export type CreateTherapistInputType = {
-    email: string;
-    name: string;
     phoneNumber: string;
     specialization?: string[];
     bio?: string[];
@@ -13,8 +11,6 @@ export type CreateTherapistInputType = {
 }
 
 export type CreateClientInputType = {
-    email: string;
-    name: string;
     phoneNumber: string;
     userId: string;
 }

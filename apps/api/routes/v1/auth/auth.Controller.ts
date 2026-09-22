@@ -20,7 +20,7 @@ export class AuthController {
 
     constructor({ authRespository, authService }: AuthControllerDependency) {
         this.authService = authService,
-            this.authRespository = authRespository;
+        this.authRespository = authRespository;
     }
 
     SendOtp = AsyncHandler(async (req: Request, res: Response) => {
@@ -43,7 +43,6 @@ export class AuthController {
         }
 
         const otp = this.authService.GenerateRandomOTP();
-        console.log(otp)
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(data.password, salt);
@@ -76,14 +75,16 @@ export class AuthController {
 
 
 
-        const cachedOtp = await this.authService.GetOtpFromRedis(data.email);
+        const [cachedOtp, hashedPass] = await Promise.all([
+            this.authService.GetOtpFromRedis(data.email),
+            this.authService.GetTempPassword(data.email)
+        ]);
+
         if (!cachedOtp || cachedOtp !== data.otp) {
             return res.status(400).json({
                 success: false, message: "Invalid or expired OTP"
             });
         }
-
-        const hashedPass = await this.authService.GetTempPassword(data.email);
 
         await Promise.all([
             this.authService.DeleteOtpFromRedis(data.email),
@@ -113,31 +114,26 @@ export class AuthController {
 
         if (!isVerified) {
             return res.status(403).json({
-                success: false, message: "Email not verified via OTP"
+                success: false, 
+                message: "Email not verified via OTP"
             });
         }
 
         if (existingUser) {
             return res.status(400).json({
-                success: false, message: "User already exists"
+                success: false,
+                 message: "User already exists"
             });
         }
 
-        // keep these two create user and create client in prisma transactions
-        const user = await this.authRespository.CreateUser({
+        await this.authRespository.RegisterClientTransaction({
             email: data.email,
             password: isVerified,
             name: data.name,
             UserRole: "CLIENT",
             verified: true,
-
-        });
-
-        await this.authRespository.CreateClientUser({
-            email: data.email,
-            name: data.name,
+        }, {
             phoneNumber: data.phoneNumber,
-            userId: user.id
         });
 
 
@@ -175,27 +171,21 @@ export class AuthController {
 
 
 
-        const user = await this.authRespository.CreateUser({
+        const slug = this.authService.GenerateSlug(data.name);
+
+        await this.authRespository.RegisterTherapistTransaction({
             email: data.email,
             password: isVerified,
             name: data.name,
             UserRole: "THERAPIST",
             profileImage: data.profileImage,
             verified: true
-        });
-
-        const slug = this.authService.GenerateSlug(user.name);
-
-
-        await this.authRespository.CreateTherapistUser({
-            email: data.email,
-            name: data.name,
+        }, {
             phoneNumber: data.phoneNumber,
             specialization: data.specialization,
             bio: data.bio,
             profileImage: data.profileImage,
             languages: data.languages,
-            userId: user.id,
             slug
         });
 

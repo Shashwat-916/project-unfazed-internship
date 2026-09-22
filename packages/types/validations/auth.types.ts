@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { GMAIL_REGEX, type UserRole } from '../index.ts'
+import { GMAIL_REGEX } from '../index.ts'
 
 
 
@@ -29,6 +29,14 @@ export const RegisterClientValidation = z.object({
     name: z.string(),
     phoneNumber: z.union([z.string(), z.number()]).transform(n => String(n)).refine(s => s.length === 10, { message: "Phone Number Must be exactly 10 Digits" })
 })
+
+export const LoginZodValidation = z.object({
+    email: z
+        .string()
+        .regex(GMAIL_REGEX, "Only Gmail addresses are allowed"),
+    
+    password: z.string()
+});
 
 
 export type SendOtpInputType = z.infer<typeof SendOtpZodValidation>

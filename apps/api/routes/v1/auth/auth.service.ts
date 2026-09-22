@@ -1,8 +1,9 @@
 import { prisma } from '@repo/db'
-import { redis } from '@repo/redis/redis'
+
 import crypto from 'crypto'
 import { JWT_SECRET, SEND_OTP_QUEUE } from '../../../../../packages/common'
 import jwt from 'jsonwebtoken'
+import { redis } from '@repo/redis'
 
 
 export class AuthService {

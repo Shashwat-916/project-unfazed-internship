@@ -1,15 +1,16 @@
 import type { Request, Response } from "express";
 import { prisma } from '@repo/db'
-import { redis } from "@repo/redis/redis";
 import { minio } from "@repo/minio";
+import { redis } from "@repo/redis";
+import { AsyncHandler } from "../../../shared/api.handler";
+
 
 
 export class HealthController {
 
-    async GetHealth(req: Request, res: Response) {
-        
+    GetHealth = AsyncHandler(async (req: Request, res: Response) => {
+
         const startTime = Date.now();
-        console.log("CurrentTime in Health Controller", startTime);
 
         const checks = {
             database: "DOWN",
@@ -47,5 +48,5 @@ export class HealthController {
             timestamp: Date.now(),
             responseTime: Date.now() - startTime,
         });
-    }
+    })
 }
