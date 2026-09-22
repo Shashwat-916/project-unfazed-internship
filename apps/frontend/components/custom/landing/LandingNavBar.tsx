@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function LandingNavigation() {
     return (
         <header
-            className="sticky top-0 z-50 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 py-3 sm:py-4 lg:px-0 lg:justify-around border-b border-gray-200 transition-all duration-300 hover:bg-white/95"
+            className="sticky top-0 z-50 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 py-4 sm:py-6 lg:px-0 lg:justify-around border-b border-gray-200 transition-all duration-300 hover:bg-white/95"
         >
             <Logo />
             <div className="flex items-center gap-2">

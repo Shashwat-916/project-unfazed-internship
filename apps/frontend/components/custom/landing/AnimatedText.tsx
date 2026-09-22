@@ -1,13 +1,10 @@
 "use client";
 
-
-
 import { AnimatePresence, motion } from "framer-motion";
-
 import { useEffect, useState } from "react";
+import { WORDS } from "../enums";
 
 
-export const WORDS = ["HEALING ", "GROWTH", "PEACE", "CLARITY", "BALANCE"]
 
 export default function AnimatedText() {
     const [index, setIndex] = useState(0);

@@ -1,13 +1,13 @@
-import Image from "next/image";
 
-import LandingBanner from "@/components/custom/LandingBanner";
-import LandingNavBar from "@/components/custom/LandingNavBar";
+
+import LandingBanner from "@/components/custom/landing/LandingBanner";
+import LandingNavBar from "@/components/custom/landing/LandingNavBar";
 
 export default function HomePage() {
-  return (
-    <div>
-      <LandingNavBar />
-      <LandingBanner />
-    </div>
-  );
+    return (
+        <div>
+            <LandingNavBar />
+            <LandingBanner />
+        </div>
+    );
 }
