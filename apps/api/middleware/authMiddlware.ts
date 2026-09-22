@@ -32,7 +32,7 @@ export const authMiddleware = AsyncHandler(async (req: AuthRequest, res: Respons
         throw new AppError("Unauthorized: Invalid token", 401);
     }
 
-    const user = await prisma.user.findUnique({ where: { id: decoded} });
+    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
     if (!user) {
         throw new AppError("Unauthorized: User not found", 401);
     }
@@ -45,3 +45,12 @@ export const authMiddleware = AsyncHandler(async (req: AuthRequest, res: Respons
 
     next();
 });
+
+export const requireRole = (allowedRoles: UserRole[]) => {
+    return (req: AuthRequest, res: Response, next: NextFunction) => {
+        if (!req.user || !allowedRoles.includes(req.user.role)) {
+            throw new AppError("Forbidden: Insufficient role permissions", 403);
+        }
+        next();
+    };
+};

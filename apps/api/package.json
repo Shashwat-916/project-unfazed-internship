@@ -22,6 +22,7 @@
     "@repo/common":"*",
     "@repo/redis":"*",
     "@repo/minio":"*",
-    "@repo/types":"*"
+    "@repo/types":"*",
+    "@repo/cloudinary": "*"
   }
 }

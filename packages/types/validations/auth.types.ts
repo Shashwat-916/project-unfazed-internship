@@ -31,10 +31,7 @@ export const RegisterClientValidation = z.object({
 })
 
 export const LoginZodValidation = z.object({
-    email: z
-        .string()
-        .regex(GMAIL_REGEX, "Only Gmail addresses are allowed"),
-    
+    email: z.string().regex(GMAIL_REGEX, "Only Gmail addresses are allowed"), 
     password: z.string()
 });
 
@@ -43,3 +40,4 @@ export type SendOtpInputType = z.infer<typeof SendOtpZodValidation>
 export type VerifyOtpInputType = z.infer<typeof VerifyOtpZodValidation>
 export type RegisterTherapistInputType = z.infer<typeof RegisterTherapistValidation>
 export type RegisterClientInputType = z.infer<typeof RegisterClientValidation>
+export type LoginZodValidation= z.infer<typeof RegisterClientValidation>
