@@ -3,6 +3,9 @@ export * from "./validations/avalability.types"
 export * from "./validations/client.types"
 export * from "./validations/service.types"
 export * from "./validations/therapist.types"
+export * from "./validations/appointment.types"
+export * from "./validations/payment.types"
+
 
 
 export const GMAIL_REGEX = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?@gmail\.com$/;

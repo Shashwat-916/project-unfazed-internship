@@ -119,7 +119,6 @@ model Avalability {
   id                String        @id @default(uuid())       
   dayOfWeek         DayOfWeek
 
-
   therapistId       String
   therapist         Therapist     @relation(fields: [therapistId], references: [id])
   
@@ -186,3 +185,4 @@ model Payment {
   
   
 }
+
