@@ -1,18 +1,23 @@
 import { prisma } from "@repo/db";
 import { AppError } from "../../../shared/api.error";
+import type { CreateServiceInput, UpdateServiceInput } from "@repo/types";
 
 export class ServiceRepository {
+
     private async getTherapistId(userId: string) {
         const therapist = await prisma.therapist.findUnique({
-            where: { userId }
+            where: {userId : userId}
         });
+        console.log("Here inside this service repo")
         if (!therapist) {
             throw new AppError("Therapist profile not found", 404);
         }
         return therapist.id;
     }
 
-    async CreateService(userId: string, data: any) {
+    
+
+    async CreateService(userId: string, data: Omit<CreateServiceInput, "therapistId">) {
         const therapistId = await this.getTherapistId(userId);
         const service = await prisma.service.create({
             data: {
@@ -33,23 +38,22 @@ export class ServiceRepository {
 
     async GetServiceById(userId: string, serviceId: string) {
         const therapistId = await this.getTherapistId(userId);
-        const service = await prisma.service.findFirst({
-            where: { id: serviceId, therapistId }
+        const service = await prisma.service.findUnique({
+            where: { id: serviceId }
         });
-        if (!service) {
+        if (!service || service.therapistId !== therapistId) {
             throw new AppError("Service not found", 404);
         }
         return service;
     }
 
-    async UpdateService(userId: string, serviceId: string, data: any) {
+    async UpdateService(userId: string, serviceId: string, data: UpdateServiceInput) {
         const therapistId = await this.getTherapistId(userId);
         
-        // Ensure service exists and belongs to therapist
-        const existingService = await prisma.service.findFirst({
-            where: { id: serviceId, therapistId }
+        const existingService = await prisma.service.findUnique({
+            where: { id: serviceId }
         });
-        if (!existingService) {
+        if (!existingService || existingService.therapistId !== therapistId) {
             throw new AppError("Service not found or unauthorized", 404);
         }
 
@@ -63,11 +67,10 @@ export class ServiceRepository {
     async DeleteService(userId: string, serviceId: string) {
         const therapistId = await this.getTherapistId(userId);
         
-        // Ensure service exists and belongs to therapist
-        const existingService = await prisma.service.findFirst({
-            where: { id: serviceId, therapistId }
+        const existingService = await prisma.service.findUnique({
+            where: { id: serviceId }
         });
-        if (!existingService) {
+        if (!existingService || existingService.therapistId !== therapistId) {
             throw new AppError("Service not found or unauthorized", 404);
         }
 

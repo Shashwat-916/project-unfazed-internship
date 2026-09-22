@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { AppError } from "../shared/api.error";
 import multer from 'multer'
 
+
 export const ErrorMiddleware = (
     err: Error,
     req: Request,
@@ -9,6 +10,7 @@ export const ErrorMiddleware = (
     next: NextFunction
 ) => {
     console.error(err);
+
 
     if (err instanceof AppError) {
         return res.status(err.statusCode).json({

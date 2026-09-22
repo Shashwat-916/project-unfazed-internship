@@ -14,7 +14,6 @@ export class HealthController {
         const checks = {
             database: "DOWN",
             redis: "DOWN",
-            minio: "DOWN",
         };
 
         try {

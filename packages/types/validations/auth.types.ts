@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { GMAIL_REGEX } from '../index.ts'
+import { GMAIL_REGEX, type UserRole } from '../index.ts'
 
 
 
@@ -41,3 +41,29 @@ export type VerifyOtpInputType = z.infer<typeof VerifyOtpZodValidation>
 export type RegisterTherapistInputType = z.infer<typeof RegisterTherapistValidation>
 export type RegisterClientInputType = z.infer<typeof RegisterClientValidation>
 export type LoginZodValidation= z.infer<typeof RegisterClientValidation>
+
+
+
+export type CreateTherapistInputType = {
+    phoneNumber: string;
+    specialization?: string[];
+    bio?: string[];
+    profileImage?: string;
+    languages?: string[];
+    userId: string;
+    slug: string;
+}
+
+export type CreateClientInputType = {
+    phoneNumber: string;
+    userId: string;
+}
+
+export type CreateUserType = {
+    email: string;
+    password?: string;
+    name: string;
+    profileImage?: string | null;
+    UserRole: UserRole;
+    verified?: boolean;
+}

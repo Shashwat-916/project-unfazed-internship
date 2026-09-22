@@ -1,5 +1,6 @@
 import { prisma } from "@repo/db";
-import type { CreateClientInputType, CreateTherapistInputType, CreateUserType } from "./auth.types";
+import type { CreateClientInputType, CreateTherapistInputType, CreateUserType } from "@repo/types";
+
 
 export class AuthRespository {
     

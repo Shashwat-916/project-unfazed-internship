@@ -1,5 +1,5 @@
 import z from "zod";
-import { GMAIL_REGEX } from "..";
+
 
 export const ClientUpdateZodValidation = z.object({
   phoneNumber: z

@@ -16,7 +16,6 @@
         "@repo/cloudinary": "*",
         "@repo/common": "*",
         "@repo/db": "*",
-        "@repo/minio": "*",
         "@repo/redis": "*",
         "@repo/types": "*",
         "@types/express": "^5.0.6",

@@ -42,6 +42,7 @@ enum DayOfWeek {
 }
 
 
+
 model User {
   
   id                String       @id      @default(uuid())
@@ -78,6 +79,7 @@ model Therapist {
   avalabilities    Avalability[]
   appointments     Appointment[]
 
+
 }
 
 model Client {
@@ -97,7 +99,7 @@ model Service{
   id                String        @id @default(uuid())
   name              String
   description       String?       @db.Text
-  duration          Int           //30 = 30 minutes
+  duration          Int           @default(50)
   price             Int           @default(0) 
   serviceImage      String?
  
@@ -112,15 +114,27 @@ model Service{
 }
 
 
-model Avalability{
+model Avalability {
+
   id                String        @id @default(uuid())       
-  startTime         DateTime      @db.Time
-  endTime           DateTime      @db.Time
-  
   dayOfWeek         DayOfWeek
+
 
   therapistId       String
   therapist         Therapist     @relation(fields: [therapistId], references: [id])
+  
+  timeSlotId         Int
+  timeSlot           TimeSlot @relation(fields: [timeSlotId],references: [id])
+  
+  @@unique([therapistId, dayOfWeek, timeSlotId])
+}
+
+model TimeSlot {
+  id        Int      @id
+  startTime DateTime @db.Time
+  endTime   DateTime @db.Time
+
+  availabilities Avalability[]
 }
 
 
