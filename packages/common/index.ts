@@ -62,6 +62,8 @@ export const commonEnv = [
     SMTP_PORT
 ]
 
+export const SEND_OTP_QUEUE = "send:otp"
+
 
 //check whether the env is set or not all the env variables are there or not or is anyone is missing or undefined
 function CheckEnv(env: string[]) {
