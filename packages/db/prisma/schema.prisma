@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -8,4 +7,168 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  CLIENT
+  THERAPIST
+}
 
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+
+model User {
+  
+  id                String       @id      @default(uuid())
+  email             String       @unique
+  password          String
+  name              String
+  verified          Boolean      @default(false)
+
+  UserRole          UserRole
+
+  therapist         Therapist?
+  client            Client?
+
+}
+
+
+model Therapist {
+  
+  id               String        @id @default(uuid())  
+  phoneNumber      String
+
+  slug             String        @unique
+  specialization   String[]
+  bio              String[]
+  profileImage     String?
+  languages        String[]  
+
+  status           Status?        @default(INACTIVE)
+
+  userId      String         @unique
+  user             User           @relation(fields: [userId], references: [id])
+
+  services         Service[] 
+  avalabilities    Avalability[]
+  appointments     Appointment[]
+
+}
+
+model Client {
+  
+  id               String         @id @default(uuid())
+  profileImage     String?
+  phoneNumber      String
+  
+  userId         String         @unique
+  user             User           @relation(fields: [userId], references: [id])
+
+  appointments     Appointment[]
+}
+
+model Service{
+
+  id                String        @id @default(uuid())
+  name              String
+  description       String?       @db.Text
+  duration          Int           //30 = 30 minutes
+  price             Int           @default(0) 
+  serviceImage      String?
+ 
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  therapistId       String
+  therapist         Therapist     @relation(fields: [therapistId], references: [id])
+
+  appointments     Appointment[]
+
+}
+
+
+model Avalability{
+  id                String        @id @default(uuid())       
+  startTime         DateTime      @db.Time
+  endTime           DateTime      @db.Time
+  
+  dayOfWeek         DayOfWeek
+
+  therapistId       String
+  therapist         Therapist     @relation(fields: [therapistId], references: [id])
+}
+
+
+model Appointment {
+  id                String               @id @default(uuid())
+
+  therapistId       String
+  therapist         Therapist            @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
+  clientId          String
+  client            Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  serviceId         String
+  service           Service              @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  startTime         DateTime
+  endTime           DateTime
+  totalAmount       Int
+  
+  paymentStatus     PaymentStatus        @default(PENDING)
+  appointmentStatus AppointmentStatus    @default(PENDING)
+  bookingTime       DateTime             @default(now())
+
+  payment           Payment?
+  
+  @@index([therapistId, startTime])
+  
+  
+}
+
+
+model Payment {
+  
+  id               String        @id @default(uuid())
+  gatewayOrderId   String        @unique 
+  gatewayPaymentId String?       @unique 
+  gatewaySignature String?
+  amount           Int           
+  
+
+  status           PaymentStatus @default(PENDING)
+
+  appointmentId    String        @unique
+  appointment      Appointment   @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  
+  
+}
