@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 import { prisma } from '@repo/db'
-import { minio } from "@repo/minio";
 import { redis } from "@repo/redis";
 import { AsyncHandler } from "../../../shared/api.handler";
 
@@ -32,12 +31,6 @@ export class HealthController {
             console.log("HEALTH CHECK - REDIS ERROR ", e);
         }
 
-        try {
-            await minio.listBuckets();
-            checks.minio = "UP";
-        } catch (e) {
-            console.log("HEALTH CHECK - MINIO ERROR ", e);
-        }
 
         const isHealthy = Object.values(checks).every((status) => status === "UP");
 

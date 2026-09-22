@@ -1,10 +1,14 @@
-import { Router } from 'express'
+import { Router } from 'express';
+import { UserController } from './user.Controller';
+import { UserService } from './user.Service';
+import { authMiddleware } from '../../../middleware/authMiddlware';
 
+const userRouter = Router();
 
-const userRouter = Router()
+const userService = new UserService();
+const userController = new UserController({ userService });
 
+userRouter.post('/login', userController.Login);
+userRouter.get('/me', authMiddleware, userController.GetCurrentUser);
 
-userRouter.post('/login', );
-userRouter.get('/me', );
-
-export default userRouter
+export default userRouter;

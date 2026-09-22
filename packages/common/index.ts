@@ -13,7 +13,7 @@ export const WEBSOCKET_PORT=process.env.WEBSOCKET_PORT;
 export const WEBRTC_PORT=process.env.WEBRTC_PORT;
 export const WORKER_PORT=process.env.WORKER_PORT
 
-console.log(API_PORT)
+
 
 export const DATABASE_URL = process.env.DATABASE_URL
 export const REDIS_URL = process.env.REDIS_URL;

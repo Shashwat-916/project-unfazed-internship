@@ -5,12 +5,10 @@ import { ServiceRepository } from "./serviceRepository";
 
 const serviceRouter = Router();
 
-// Instantiate dependencies
 const serviceRepository = new ServiceRepository();
 const serviceController = new ServiceController({ serviceRepository });
 
-// All service routes require authentication and the 'THERAPIST' role
-// Assuming only therapists can manage services
+
 serviceRouter.use(authMiddleware, requireRole(["THERAPIST"]));
 
 serviceRouter.post("/", serviceController.CreateService);

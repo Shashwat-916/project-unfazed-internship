@@ -4,6 +4,7 @@ import type { TherapistRespository } from "./therapistRepository";
 import type { Request, Response } from 'express';
 import { AppError } from "../../../shared/api.error";
 import { CloudinaryUpload } from "@repo/cloudinary";
+import { TherapistUpdateZodValidation } from "../../../../../packages/types/validations/therapist.types";
 
 
 interface ITherapistConntroller {
@@ -48,8 +49,17 @@ export class TherapistController {
             throw new AppError("Unauthorized", 401);
         }
 
+        const { data, success, error } = TherapistUpdateZodValidation.safeParse(req.body);
 
-        const updatedProfile = await this.therapistRespository.UpdateTherapistByUserId(userId, req.body);
+        if (!success) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Schema",
+                errors: error.issues
+            });
+        }
+
+        const updatedProfile = await this.therapistRespository.UpdateTherapistByUserId(userId, data);
 
         return res.status(200).json({
             success: true,

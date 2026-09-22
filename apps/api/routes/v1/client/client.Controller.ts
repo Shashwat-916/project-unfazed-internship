@@ -6,6 +6,7 @@ import type { ClientRespository } from "./clientRepository";
 import type { Request, Response } from 'express';
 import { AppError } from "../../../shared/api.error";
 import { CloudinaryUpload } from "@repo/cloudinary";
+import { ClientUpdateZodValidation } from "../../../../../packages/types/validations/client.types";
 
 
 interface IClientConntroller {
@@ -49,8 +50,17 @@ export class ClientController {
             throw new AppError("Unauthorized", 401);
         }
 
+        const { data, success, error } = ClientUpdateZodValidation.safeParse(req.body);
 
-        const updatedProfile = await this.clientRespository.UpdateClientByUserId(userId, req.body);
+        if (!success) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Schema",
+                errors: error.issues
+            });
+        }
+
+        const updatedProfile = await this.clientRespository.UpdateClientByUserId(userId, data);
 
         return res.status(200).json({
             success: true,

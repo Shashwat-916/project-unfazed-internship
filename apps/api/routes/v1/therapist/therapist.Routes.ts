@@ -6,12 +6,10 @@ import { CloudinaryUpload } from "@repo/cloudinary";
 
 const therapistRouter = Router();
 
-// Instantiate dependencies
 const therapistRespository = new TherapistRespository();
 const uploadService = new CloudinaryUpload(); 
 const therapistController = new TherapistController({ uploadService, therapistRespository });
 
-// All therapist routes require authentication and the 'THERAPIST' role
 therapistRouter.use(authMiddleware, requireRole(["THERAPIST"]));
 
 therapistRouter.get("/me", therapistController.GetProfileTherapist);

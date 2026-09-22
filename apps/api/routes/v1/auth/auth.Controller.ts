@@ -43,6 +43,7 @@ export class AuthController {
         }
 
         const otp = this.authService.GenerateRandomOTP();
+        console.log(otp)
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(data.password, salt);
