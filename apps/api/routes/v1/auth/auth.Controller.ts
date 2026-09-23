@@ -4,6 +4,7 @@ import type { Request, Response } from 'express'
 import type { AuthRespository } from "./auth.Respository";
 import type { AuthService } from "./auth.service";
 import bcrypt from "bcryptjs";
+import { rateLimiter } from "@repo/redis";
 
 
 
@@ -32,6 +33,14 @@ export class AuthController {
                 message: "Invalid Schema",
                 errors: error.issues
             })
+        }
+
+        const isAllowed = await rateLimiter.consume(`ratelimit:otp:${data.email}`, 3, 3, 60);
+        if (!isAllowed) {
+            return res.status(429).json({
+                success: false,
+                message: "Too many OTP requests. Please try again later."
+            });
         }
 
         const existingUser = await this.authRespository.FindUserByEmail(data.email)

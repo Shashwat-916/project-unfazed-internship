@@ -1,54 +1,86 @@
-import * as Minio from "minio";
-import dotenv from "dotenv";
+import * as Minio from 'minio';
+import multer from 'multer';
+import dotenv from 'dotenv';
+
+
 dotenv.config();
 
+export const multerMemory = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024 
+    },
+});
 
-export class MinioManager {
-
-    private static instance: MinioManager;
+export class MinioUpload {
     private client: Minio.Client;
+    private bucketName: string;
 
-    private constructor() {
+    constructor() {
+        this.bucketName = process.env.MINIO_BUCKET_NAME || 'unfazed-profiles';
+        
         this.client = new Minio.Client({
-            endPoint: process.env.MINIO_ENDPOINT!,
-            port: Number(process.env.MINIO_PORT ?? 9000),
-            useSSL: process.env.MINIO_USE_SSL === "true",
-            accessKey: process.env.MINIO_ACCESS_KEY!,
-            secretKey: process.env.MINIO_SECRET_KEY!,
+            endPoint: process.env.MINIO_ENDPOINT || 'localhost',
+            port: parseInt(process.env.MINIO_PORT || '9000', 10),
+            useSSL: process.env.MINIO_USE_SSL === 'true',
+            accessKey: process.env.MINIO_ACCESS_KEY || 'admin',
+            secretKey: process.env.MINIO_SECRET_KEY || 'password'
         });
     }
 
-    public static getInstance(): MinioManager {
-        if (!this.instance) {
-            this.instance = new MinioManager();
-        }
-
-        return this.instance;
-    }
-
-    public getClient(): Minio.Client {
-        return this.client;
-    }
-
-    public async initMinio() {
-        const bucketName = process.env.MINIO_BUCKET!;
+    public async initBucket() {
         try {
-            const exists = await this.client.bucketExists(bucketName);
+            const exists = await this.client.bucketExists(this.bucketName);
             if (!exists) {
-                await this.client.makeBucket(bucketName);
-                console.log("MINIO CONNECTED")
+                await this.client.makeBucket(this.bucketName, 'us-east-1');
+                
+                // Set bucket policy for public read access
+                const policy = {
+                    Version: '2012-10-17',
+                    Statement: [
+                        {
+                            Action: ['s3:GetObject'],
+                            Effect: 'Allow',
+                            Principal: { AWS: ['*'] },
+                            Resource: [`arn:aws:s3:::${this.bucketName}/*`],
+                        },
+                    ],
+                };
+                await this.client.setBucketPolicy(this.bucketName, JSON.stringify(policy));
+                console.log(`Bucket ${this.bucketName} created with public read access.`);
             } else {
-                console.log("MINIO DISCONNECTED")
+                console.log(`MinIO bucket ${this.bucketName} is ready.`);
             }
-        } catch (e) {
-            console.log("MINIO INITIALIZATION FAILED")
+        } catch (error) {
+            console.error('Error initializing MinIO bucket:', error);
+            throw error;
         }
     }
 
+    public async upload(buffer: Buffer, folder: string = "UNFAZED_PROFILEs"): Promise<{ secure_url: string }> {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const objectName = `${folder}/${uniqueSuffix}.jpg`; // Assuming jpg for profiles
+
+        try {
+            await this.client.putObject(this.bucketName, objectName, buffer);
+            
+        
+            const protocol = process.env.MINIO_USE_SSL === 'true' ? 'https' : 'http';
+            const endpoint = process.env.MINIO_ENDPOINT || 'localhost';
+            const port = process.env.MINIO_PORT || '9000';
+            
+            const secure_url = `${protocol}://${endpoint}:${port}/${this.bucketName}/${objectName}`;
+            
+            return { secure_url };
+        } catch (error) {
+            console.error('MinIO upload error:', error);
+            throw error;
+        }
+    }
+    public async generateSignature(folder: string = "UNFAZED_PROFILEs"): Promise<{ url: string }> {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const objectName = `${folder}/${uniqueSuffix}.jpg`;
+        const url = await this.client.presignedPutObject(this.bucketName, objectName, 3600);
+        return { url };
+    }
 }
-
-
-
-
-const minioInstance = MinioManager.getInstance()
-export const minio = minioInstance.getClient()

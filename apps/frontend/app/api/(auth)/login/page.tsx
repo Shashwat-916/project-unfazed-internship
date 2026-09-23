@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import LoginUI from "@/components/custom/login/Login";
-import { useAuthContext } from "@/context/useAuthContext";
+import { UserRoutes } from "@/services/userRoutes";
 import { useRouter } from "next/navigation";
 import { Alert, AlertTitle, AlertDescription } from "@/components/reui/alert";
 
@@ -13,7 +13,6 @@ export default function LoginPage() {
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
 
-    const { userService, login } = useAuthContext();
     const router = useRouter();
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -22,11 +21,12 @@ export default function LoginPage() {
         setErrorMsg("");
         setSuccessMsg("");
         try {
+            const userService = new UserRoutes();
             const response = await userService.login({ email, password });
             if (response.token && response.user) {
-                login(response.token, response.user);
+                localStorage.setItem('token', response.token);
                 setSuccessMsg("Login successful! Redirecting...");
-                setTimeout(() => router.push('/'), 1000); 
+                setTimeout(() => router.push(response.user.role === 'THERAPIST' ? '/api/therapist/profile' : '/api/client/profile'), 1000); 
             } else {
                 setErrorMsg("Login failed. No token received.");
             }
@@ -39,29 +39,15 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-            <div className="w-full max-w-md p-4 space-y-4">
-                {errorMsg && (
-                    <Alert variant="destructive">
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>{errorMsg}</AlertDescription>
-                    </Alert>
-                )}
-                {successMsg && (
-                    <Alert variant="success">
-                        <AlertTitle>Success</AlertTitle>
-                        <AlertDescription>{successMsg}</AlertDescription>
-                    </Alert>
-                )}
-                <LoginUI 
-                    email={email}
-                    password={password}
-                    setEmail={setEmail}
-                    setPassword={setPassword}
-                    isLoading={isLoading}
-                    onSubmit={handleLogin}
-                />
-            </div>
-        </div>
+        <LoginUI 
+            email={email}
+            password={password}
+            setEmail={setEmail}
+            setPassword={setPassword}
+            isLoading={isLoading}
+            onSubmit={handleLogin}
+            errorMsg={errorMsg}
+            successMsg={successMsg}
+        />
     )
 }

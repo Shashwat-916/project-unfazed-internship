@@ -155,3 +155,11 @@
     @apply font-sans;
   }
 }
+
+* {
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}

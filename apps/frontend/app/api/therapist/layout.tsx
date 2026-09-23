@@ -8,20 +8,12 @@ import SideBarTherapist from "@/components/custom/therapist/SideBarTherapist";
 function TherapistLayoutInner({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const userName = "shashwat therapist";
-    const userInitials = "TU";
-    const profileImage = null;
-
     return (
         <div className="flex h-screen flex-col bg-slate-50 font-sans">
             {/* Top Navigation */}
             <NavBarTherapist
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
-                userRole="Therapist"
-                userName={userName}
-                userInitials={userInitials}
-                profileImage={profileImage}
             />
 
             {/* Main Layout */}
@@ -40,14 +32,19 @@ function TherapistLayoutInner({ children }: { children: React.ReactNode }) {
     );
 }
 
+import { AppProvider } from "@/context/AppProvider";
+import { TherapistProvider } from "@/context/useTherapistContext";
+
 export default function TherapistLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
     return (
-
-        <TherapistLayoutInner>{children}</TherapistLayoutInner>
-
+        <AppProvider>
+            <TherapistProvider>
+                <TherapistLayoutInner>{children}</TherapistLayoutInner>
+            </TherapistProvider>
+        </AppProvider>
     );
 }

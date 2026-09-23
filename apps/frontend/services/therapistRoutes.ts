@@ -24,8 +24,20 @@ export class TherapistRoutes {
         return response.data;
     }
 
+    async updateStatus(status: 'ACTIVE' | 'INACTIVE') {
+        const response = await axios.patch(`${API_BASE_URL}/therapist/updatestatus`, { status }, { headers: this.getHeaders() });
+        return response.data;
+    }
+
     async getPresignedUrl() {
         const response = await axios.get(`${API_BASE_URL}/therapist/me/image/presignedUrl`, { headers: this.getHeaders() });
         return response.data;
     }
+
+    async saveProfileImageUrl(url: string) {
+        const response = await axios.post(`${API_BASE_URL}/therapist/me/image/presignedUrl/db`, { url }, { headers: this.getHeaders() });
+        return response.data;
+    }
+
+
 }

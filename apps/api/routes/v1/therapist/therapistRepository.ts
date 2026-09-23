@@ -5,6 +5,14 @@ export class TherapistRespository {
         const therapist = await prisma.therapist.findUnique({
             where:{
                 userId: userId
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
             }
         })
         return therapist;

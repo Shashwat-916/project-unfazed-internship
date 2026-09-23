@@ -1,7 +1,7 @@
 import { redis } from "@repo/redis";
 import crypto from "crypto";
 import { razorpayInstance } from "../../../shared/razorpay";
-import { RAZOR_SECRET_KEY } from "@repo/common";
+import { RAZOR_SECRET_KEY, PAYMENT_CLIENT_QUEUE, PAYMENT_THERAPIST_QUEUE } from "@repo/common";
 
  export class PaymentService {
     
@@ -54,6 +54,18 @@ import { RAZOR_SECRET_KEY } from "@repo/common";
             .digest("hex");
         
         return expectedSignature === signature;
+    }
+
+    async PushPaymentSuccessClientJob(email: string, name: string, appointmentDate: Date, amount: number, therapistName: string) {
+        if (!PAYMENT_CLIENT_QUEUE) throw new Error("PAYMENT_CLIENT_QUEUE is not defined");
+        const payload = JSON.stringify({ email, name, appointmentDate, amount, therapistName });
+        await redis.lPush(PAYMENT_CLIENT_QUEUE, payload);
+    }
+
+    async PushPaymentSuccessTherapistJob(email: string, name: string, appointmentDate: Date, amount: number, clientName: string) {
+        if (!PAYMENT_THERAPIST_QUEUE) throw new Error("PAYMENT_THERAPIST_QUEUE is not defined");
+        const payload = JSON.stringify({ email, name, appointmentDate, amount, clientName });
+        await redis.lPush(PAYMENT_THERAPIST_QUEUE, payload);
     }
 
  }

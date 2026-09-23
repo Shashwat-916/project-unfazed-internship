@@ -2,19 +2,24 @@ import { Router } from "express";
 import { authMiddleware, requireRole } from "../../../middleware/authMiddlware";
 import { ClientController } from "./client.Controller";
 import { ClientRespository } from "./clientRepository";
-import { CloudinaryUpload } from "@repo/cloudinary";
+import { MinioUpload, multerMemory } from "@repo/minio";
 
 const clientRouter = Router();
 
 
 const clientRespository = new ClientRespository();
-const uploadService = new CloudinaryUpload(); 
+const uploadService = new MinioUpload(); 
 const clientController = new ClientController({ uploadService, clientRespository });
 
+
+clientRouter.get("/me/image/presignedUrl", clientController.GetPresignedUrl); 
+clientRouter.get("/findtherapist", clientController.FindAllTherapist);
+clientRouter.get('/findtherapist/:slug', clientController.FindTherapistBySlug);
 
 clientRouter.use(authMiddleware, requireRole(["CLIENT"]));
 clientRouter.get("/me", clientController.GetProfileClient);
 clientRouter.patch("/me", clientController.UpdateProfileClient);
-clientRouter.get("/me/image/presignedUrl", clientController.GetPresignedUrl); 
+clientRouter.patch("/updatestatus", clientController.UpdateStatus);
+clientRouter.post("/me/image/presignedUrl/db", clientController.uploadPresignedUrl);
 
 export default clientRouter;

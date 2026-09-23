@@ -8,20 +8,12 @@ function ClientLayoutInner({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     
   
-    const userName = "shashwat client";
-    const userInitials = "CU";
-    const profileImage = null;
-
     return (
         <div className="flex h-screen flex-col bg-slate-50 font-sans">
             {/* Top Navigation */}
             <NavBarClient
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
-                userRole="Client"
-                userName={userName}
-                userInitials={userInitials}
-                profileImage={profileImage}
             />
 
             {/* Main Layout */}
@@ -40,13 +32,19 @@ function ClientLayoutInner({ children }: { children: React.ReactNode }) {
     );
 }
 
+import { AppProvider } from "@/context/AppProvider";
+import { ClientProvider } from "@/context/useClientContext";
+
 export default function ClientLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    // Removed <ClientProvider> since it wasn't found in the codebase yet. Add back when created.
     return (
-        <ClientLayoutInner>{children}</ClientLayoutInner>
+        <AppProvider>
+            <ClientProvider>
+                <ClientLayoutInner>{children}</ClientLayoutInner>
+            </ClientProvider>
+        </AppProvider>
     );
 }

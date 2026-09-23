@@ -1,0 +1,21 @@
+{
+  "name": "worker",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch index.ts",
+    "build": "bun build ./index.ts --outdir ./dist --target node"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@repo/redis": "*",
+    "@repo/common": "*"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "nodemailer": "^10.0.10"
+  }
+}

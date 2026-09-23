@@ -20,13 +20,15 @@ export class CloudinaryUpload {
     private client: typeof cloudinary;
 
     constructor() {
-
         this.client = cloudinary;
-        this.client.config({
-            cloud_name: process.env.CLOUD_NAME!,
-            api_key: process.env.API_KEY!,
-            api_secret: process.env.API_SECRET!,
-        });
+        
+        if (process.env.CLOUD_NAME && process.env.API_KEY && process.env.API_SECRET) {
+            this.client.config({
+                cloud_name: process.env.CLOUD_NAME,
+                api_key: process.env.API_KEY,
+                api_secret: process.env.API_SECRET,
+            });
+        }
     }
 
     public async upload(

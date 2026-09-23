@@ -7,7 +7,7 @@ import RegistrationVerifyOtpStep from "./Registration.VerifyOtp"
 import RegistrationChooseRole from "./Registration.ChooseRole"
 import RegistrationClientFormStep from "./Registration.ClientForm"
 import RegistrationTherapistFormStep from "./Registration.TherapistForm"
-import { useAuthContext } from "@/context/useAuthContext"
+import { AuthRoutes } from "@/services/authRoutes"
 import { useRouter } from "next/navigation"
 import { Alert, AlertTitle, AlertDescription } from "@/components/reui/alert"
 
@@ -18,20 +18,20 @@ export function RegistrationStepper() {
     const [role, setRole] = useState<"CLIENT" | "THERAPIST" | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     
-    // OTP states
+    
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [otp, setOtp] = useState("");
 
-    // Form states
+    
     const [clientData, setClientData] = useState({ name: "", phoneNumber: "" });
     const [therapistData, setTherapistData] = useState({ name: "", phoneNumber: "", bio: "", specialization: "", languages: "" });
 
-    // Alert states
+    
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
 
-    const { authService, login } = useAuthContext();
+    const authService = new AuthRoutes();
     const router = useRouter();
 
     const handleNext = () => setCurrentStep((prev) => Math.min(prev + 1, 4));
@@ -42,7 +42,7 @@ export function RegistrationStepper() {
         setErrorMsg("");
         setSuccessMsg("");
         try {
-            await authService.sendOtp({ email });
+            await authService.sendOtp({ email , password});
             setSuccessMsg("OTP sent successfully!");
             setTimeout(() => { setSuccessMsg(""); handleNext(); }, 1500);
         } catch (error: any) {
@@ -78,12 +78,11 @@ export function RegistrationStepper() {
         try {
             const res = await authService.registerClient({
                 email,
-                password,
                 name: clientData.name,
                 phoneNumber: clientData.phoneNumber
             });
             if (res.token && res.user) {
-                login(res.token, res.user);
+                localStorage.setItem('token', res.token);
             }
             setSuccessMsg("Client Registration Complete! Redirecting...");
             setTimeout(() => router.push("/"), 1500);
@@ -103,15 +102,14 @@ export function RegistrationStepper() {
         try {
             const res = await authService.registerTherapist({
                 email,
-                password,
                 name: therapistData.name,
                 phoneNumber: therapistData.phoneNumber,
-                bio: therapistData.bio,
-                specialization: therapistData.specialization,
-                languages: therapistData.languages
+                bio: therapistData.bio ? therapistData.bio.split(',').map(s => s.trim()) : [],
+                specialization: therapistData.specialization ? therapistData.specialization.split(',').map(s => s.trim()) : [],
+                languages: therapistData.languages ? therapistData.languages.split(',').map(s => s.trim()) : []
             });
             if (res.token && res.user) {
-                login(res.token, res.user);
+                localStorage.setItem('token', res.token);
             }
             setSuccessMsg("Therapist Registration Complete! Redirecting...");
             setTimeout(() => router.push("/"), 1500);

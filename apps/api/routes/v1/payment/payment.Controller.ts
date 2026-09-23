@@ -3,6 +3,7 @@ import { AsyncHandler } from "../../../shared/api.handler";
 import { VerifyPaymentValidation } from "@repo/types";
 import type { PaymentRepository } from "./payment.Respository";
 import type { PaymentService } from "./payment.Service";
+import { rateLimiter } from "@repo/redis";
 
 
 export interface IPaymentController {
@@ -31,6 +32,14 @@ export class PaymentController {
         }
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
 
+        const isAllowed = await rateLimiter.consume(`ratelimit:paymentVerify:${razorpay_order_id}`, 5, 5, 60);
+        if (!isAllowed) {
+            return res.status(429).json({
+                success: false,
+                message: "Too many verification attempts for this order. Please try again later."
+            });
+        }
+
         const payment = await this.paymentResitory.GetPaymentByOrderId(razorpay_order_id);
 
         if (!payment) {
@@ -55,6 +64,26 @@ export class PaymentController {
         
         if (payment.appointmentId) {
             await this.paymentResitory.UpdateAppointmentStatus(payment.appointmentId, "CONFIRMED");
+            
+            // Enqueue success emails
+            if (payment.appointment.client.user.email && payment.appointment.therapist.user.email) {
+                await Promise.all([
+                    this.paymentService.PushPaymentSuccessClientJob(
+                        payment.appointment.client.user.email,
+                        payment.appointment.client.user.name,
+                        payment.appointment.startTime,
+                        payment.amount,
+                        payment.appointment.therapist.user.name
+                    ),
+                    this.paymentService.PushPaymentSuccessTherapistJob(
+                        payment.appointment.therapist.user.email,
+                        payment.appointment.therapist.user.name,
+                        payment.appointment.startTime,
+                        payment.amount,
+                        payment.appointment.client.user.name
+                    )
+                ]);
+            }
         }
 
         return res.status(200).json({

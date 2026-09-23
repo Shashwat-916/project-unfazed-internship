@@ -42,7 +42,13 @@ export class AppointmentRespository {
         return prisma.appointment.findMany({
             where: { therapistId },
             include: {
-                client: true,
+                client: {
+                    include: {
+                        user: {
+                            select: { name: true }
+                        }
+                    }
+                },
                 service: true
             }
         });
@@ -52,7 +58,13 @@ export class AppointmentRespository {
         return prisma.appointment.findMany({
             where: { clientId },
             include: {
-                therapist: true,
+                therapist: {
+                    include: {
+                        user: {
+                            select: { name: true }
+                        }
+                    }
+                },
                 service: true
             }
         });

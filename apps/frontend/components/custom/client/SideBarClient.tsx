@@ -12,6 +12,7 @@ const sidebarLinks = [
     { name: 'Profile', href: '/api/client/profile', icon: User },
     { name: 'Find Therapist', href: '/api/client/search', icon: Search },
     { name: 'Messages', href: '/api/client/messages', icon: MessageCircle },
+    { name: 'Intake', href: '/api/client/intake', icon: User }
 ];
 
 export default function SideBarClient({ sidebarOpen }: SideBarClientProps) {
@@ -48,17 +49,7 @@ export default function SideBarClient({ sidebarOpen }: SideBarClientProps) {
                     })}
                 </ul>
 
-                <div className="px-5 mt-8 mb-4 hidden lg:block">
-                    <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Settings</h2>
-                </div>
-                <ul className="space-y-1 px-3">
-                    <li>
-                        <Link href="/api/client/profile" className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium">
-                            <Settings size={18} className="text-gray-400 group-hover:text-emerald-500 transition-colors" />
-                            My Profile
-                        </Link>
-                    </li>
-                </ul>
+                
             </nav>
         </aside>
     );

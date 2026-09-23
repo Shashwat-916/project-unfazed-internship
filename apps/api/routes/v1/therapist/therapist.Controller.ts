@@ -3,18 +3,18 @@ import { AsyncHandler } from "../../../shared/api.handler";
 import type { TherapistRespository } from "./therapistRepository";
 import type { Request, Response } from 'express';
 import { AppError } from "../../../shared/api.error";
-import { CloudinaryUpload } from "@repo/cloudinary";
+import { MinioUpload } from "@repo/minio";
 import { TherapistUpdateZodValidation } from "../../../../../packages/types/validations/therapist.types";
 
 
 interface ITherapistConntroller {
-    uploadService: CloudinaryUpload
+    uploadService: MinioUpload
     therapistRespository: TherapistRespository
 }
 
 export class TherapistController {
 
-    private uploadService: CloudinaryUpload
+    private uploadService: MinioUpload
     private therapistRespository: TherapistRespository
 
     constructor({ uploadService, therapistRespository }: ITherapistConntroller) {
@@ -68,14 +68,8 @@ export class TherapistController {
         });
     })
 
-    GetPresignedUrl = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        const userId = req.user?.userId;
-
-        if (!userId) {
-            throw new AppError("Unauthorized", 401);
-        }
-
-        const signatureData = this.uploadService.generateSignature();
+    GetPresignedUrl = AsyncHandler(async (req: Request, res: Response) => {
+        const signatureData = await this.uploadService.generateSignature();
 
         return res.status(200).json({
             success: true,
@@ -83,5 +77,47 @@ export class TherapistController {
         });
     })
 
+    uploadPresignedUrl = AsyncHandler(async(req:AuthRequest,res:Response)=>{
+        const userId = req.user?.userId;
+
+        if (!userId) {
+            throw new AppError("Unauthorized", 401);
+        }
+
+        const { url } = req.body;
+
+        if (!url) {
+            throw new AppError("Image URL is required", 400);
+        }
+
+        const updatedProfile = await this.therapistRespository.UpdateTherapistByUserId(userId, { profileImage: url });
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile image updated successfully",
+            data: updatedProfile
+        });
+    })
+    
+    UpdateStatus = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const userId = req.user?.userId;
+        const { status } = req.body;
+
+        if (!userId) {
+            throw new AppError("Unauthorized", 401);
+        }
+
+        if (status !== 'ACTIVE' && status !== 'INACTIVE') {
+            throw new AppError("Invalid status", 400);
+        }
+
+        const updatedProfile = await this.therapistRespository.UpdateTherapistByUserId(userId, { status });
+
+        return res.status(200).json({
+            success: true,
+            message: "Status updated successfully",
+            data: updatedProfile
+        });
+    });
 
 }

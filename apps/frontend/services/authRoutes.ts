@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { SendOtpInputType , VerifyOtpInputType , RegisterClientInputType , RegisterTherapistInputType} from '@repo/types'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -9,27 +10,27 @@ export class AuthRoutes {
         this.token = token;    
     }
 
-    private getHeaders() {
+    private getHeaders = () => {
         if (!this.token) return {};
         return { Authorization: `Bearer ${this.token}` };
     }
 
-    async sendOtp(data: { email: string }) {
+    sendOtp = async (data: SendOtpInputType) => {
         const response = await axios.post(`${API_BASE_URL}/auth/send-otp`, data, { headers: this.getHeaders() });
         return response.data;
     }
 
-    async verifyOtp(data: { email: string, otp: string }) {
+    verifyOtp = async (data: VerifyOtpInputType) => {
         const response = await axios.post(`${API_BASE_URL}/auth/verify-otp`, data, { headers: this.getHeaders() });
         return response.data;
     }
 
-    async registerClient(data: any) {
+    registerClient = async (data: RegisterClientInputType) => {
         const response = await axios.post(`${API_BASE_URL}/auth/register/client`, data, { headers: this.getHeaders() });
         return response.data;
     }
 
-    async registerTherapist(data: any) {
+    registerTherapist = async (data: RegisterTherapistInputType) => {
         const response = await axios.post(`${API_BASE_URL}/auth/register/therapist`, data, { headers: this.getHeaders() });
         return response.data;
     }

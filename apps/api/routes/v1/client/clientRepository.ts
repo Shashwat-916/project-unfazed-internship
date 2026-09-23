@@ -6,6 +6,14 @@ export class ClientRespository {
         const client = await prisma.client.findUnique({
             where:{
                 userId: userId
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
             }
         })
         return client;

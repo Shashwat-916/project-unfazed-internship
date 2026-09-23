@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { GMAIL_REGEX, type UserRole } from '../index.ts'
+import { GMAIL_REGEX, type UserRole } from '../index'
 
 
 
@@ -40,7 +40,7 @@ export type SendOtpInputType = z.infer<typeof SendOtpZodValidation>
 export type VerifyOtpInputType = z.infer<typeof VerifyOtpZodValidation>
 export type RegisterTherapistInputType = z.infer<typeof RegisterTherapistValidation>
 export type RegisterClientInputType = z.infer<typeof RegisterClientValidation>
-export type LoginZodValidation= z.infer<typeof RegisterClientValidation>
+export type LoginInputType = z.infer<typeof LoginZodValidation>
 
 
 

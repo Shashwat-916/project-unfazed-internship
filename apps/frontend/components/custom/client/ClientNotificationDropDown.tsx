@@ -3,29 +3,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, Check } from 'lucide-react';
 
-const DUMMY_NOTIFICATIONS = [
-    {
-        id: '1',
-        content: 'New message received.',
-        createdAt: new Date().toISOString(),
-        isRead: false
-    },
-    {
-        id: '2',
-        content: 'Appointment reminder for tomorrow.',
-        createdAt: new Date(Date.now() - 3600000).toISOString(),
-        isRead: false
-    },
-    {
-        id: '3',
-        content: 'Your profile was updated successfully.',
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-        isRead: true
-    }
-];
 
 export default function ClientNotificationDropdown() {
-    const [notifications, setNotifications] = useState<any[]>(DUMMY_NOTIFICATIONS);
+    const [liveNotifications, setLiveNotifications] = useState<any[]>([]);
+
+    const markNotificationRead = (id: string) => {
+        setLiveNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    };
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -39,16 +23,22 @@ export default function ClientNotificationDropdown() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+
+
     const handleMarkAsRead = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+        markNotificationRead(id);
     };
 
     const handleMarkAllAsRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+        liveNotifications.forEach(n => {
+            if (!n.read) {
+                markNotificationRead(n.id);
+            }
+        });
     };
 
-    const unreadCount = notifications.filter(n => !n.isRead).length;
+    const unreadCount = liveNotifications.filter(n => !n.read).length;
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -78,26 +68,26 @@ export default function ClientNotificationDropdown() {
                         )}
                     </div>
                     <div className="max-h-80 overflow-y-auto">
-                        {notifications.length === 0 ? (
+                        {liveNotifications.length === 0 ? (
                             <div className="p-8 text-center text-slate-500 text-sm">
                                 No notifications yet.
                             </div>
                         ) : (
                             <div className="divide-y divide-gray-50">
-                                {notifications.map(notification => (
+                                {liveNotifications.map(notification => (
                                     <div 
                                         key={notification.id} 
-                                        className={`p-3 sm:p-4 flex gap-2 sm:gap-3 hover:bg-slate-50 transition-colors ${!notification.isRead ? 'bg-emerald-50/30' : ''}`}
+                                        className={`p-3 sm:p-4 flex gap-2 sm:gap-3 hover:bg-slate-50 transition-colors ${!notification.read ? 'bg-emerald-50/30' : ''}`}
                                     >
                                         <div className="flex-1 min-w-0">
-                                            <p className={`text-[13px] sm:text-sm leading-snug ${!notification.isRead ? 'font-medium text-slate-900' : 'text-slate-600'}`}>
+                                            <p className={`text-[13px] sm:text-sm leading-snug ${!notification.read ? 'font-medium text-slate-900' : 'text-slate-600'}`}>
                                                 {notification.content}
                                             </p>
                                             <p className="text-[11px] sm:text-xs text-slate-400 mt-1">
                                                 {new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </p>
                                         </div>
-                                        {!notification.isRead && (
+                                        {!notification.read && (
                                             <button 
                                                 onClick={(e) => handleMarkAsRead(notification.id, e)}
                                                 className="shrink-0 p-1.5 text-emerald-600 hover:bg-emerald-100 rounded-full transition-colors self-center"

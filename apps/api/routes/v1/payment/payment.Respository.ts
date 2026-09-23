@@ -5,7 +5,14 @@ export class PaymentRepository {
     async GetPaymentByOrderId(orderId: string) {
         return prisma.payment.findUnique({
             where: { gatewayOrderId: orderId },
-            include: { appointment: { include: { client: true, therapist: true } } },
+            include: { 
+                appointment: { 
+                    include: { 
+                        client: { include: { user: true } }, 
+                        therapist: { include: { user: true } } 
+                    } 
+                } 
+            },
         });
     }
 

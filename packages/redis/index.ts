@@ -96,3 +96,73 @@ export class PubSubManager {
 const redisInstance = RedisManager.getInstance()
 export const redis = redisInstance.getClient()
 export const redisBlocking = redisInstance.getBlockingClient()
+
+export class RateLimiter {
+    private client: RedisClientType;
+    
+    constructor() {
+        this.client = RedisManager.getInstance().getClient();
+    }
+
+    /**
+     * Token Bucket Rate Limiter using a Lua Script for atomicity
+     * @param key Unique identifier for the rate limit (e.g., "ratelimit:otp:email@example.com")
+     * @param capacity Maximum number of tokens the bucket can hold (e.g., 3)
+     * @param refillRateTokens Number of tokens added per refill interval (e.g., 1)
+     * @param refillIntervalSeconds Interval in seconds at which tokens are added (e.g., 60 for 1 token per minute)
+     * @returns boolean true if allowed, false if rate limit exceeded
+     */
+    async consume(key: string, capacity: number, refillRateTokens: number, refillIntervalSeconds: number): Promise<boolean> {
+        const script = `
+            local key = KEYS[1]
+            local capacity = tonumber(ARGV[1])
+            local refillRate = tonumber(ARGV[2])
+            local interval = tonumber(ARGV[3])
+            local now = tonumber(ARGV[4])
+            
+            local bucket = redis.call('HMGET', key, 'tokens', 'last_refill')
+            local tokens = tonumber(bucket[1])
+            local last_refill = tonumber(bucket[2])
+            
+            if not tokens then
+                tokens = capacity
+                last_refill = now
+            else
+                local time_passed = math.max(0, now - last_refill)
+                local refill_amount = math.floor(time_passed / interval) * refillRate
+                
+                if refill_amount > 0 then
+                    tokens = math.min(capacity, tokens + refill_amount)
+                    last_refill = last_refill + (math.floor(time_passed / interval) * interval)
+                end
+            end
+            
+            if tokens >= 1 then
+                tokens = tokens - 1
+                redis.call('HMSET', key, 'tokens', tokens, 'last_refill', last_refill)
+                redis.call('EXPIRE', key, math.ceil(capacity / refillRate) * interval)
+                return 1
+            else
+                redis.call('HMSET', key, 'tokens', tokens, 'last_refill', last_refill)
+                redis.call('EXPIRE', key, math.ceil(capacity / refillRate) * interval)
+                return 0
+            end
+        `;
+        
+        const now = Math.floor(Date.now() / 1000);
+        const result = await this.client.eval(script, {
+            keys: [key],
+            arguments: [
+                capacity.toString(), 
+                refillRateTokens.toString(), 
+                refillIntervalSeconds.toString(), 
+                now.toString()
+            ]
+        });
+        
+        return result === 1;
+    }
+}
+
+export const rateLimiter = new RateLimiter();
+

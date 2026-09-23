@@ -4,8 +4,18 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { ClientRoutes } from '../services/clientRoutes';
 import { useAuthContext } from './useAuthContext';
 
-interface ClientProfile {
+interface UserDetails {
+    name: string | null;
+    email: string;
+}
+
+export interface ClientProfile {
     id: string;
+    profileImage: string | null;
+    phoneNumber: string;
+    status: string | null;
+    userId: string;
+    user: UserDetails;
     [key: string]: any;
 }
 
@@ -15,6 +25,8 @@ interface ClientContextType {
     clientService: ClientRoutes;
     refreshProfile: () => Promise<void>;
 }
+
+
 
 const ClientContext = createContext<ClientContextType | undefined>(undefined);
 
@@ -29,8 +41,10 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
         if (!token || user?.role !== 'CLIENT') return;
         setIsLoading(true);
         try {
-            const data = await clientService.getProfile();
-            setProfile(data);
+            const res = await clientService.getProfile();
+            if (res.success) {
+                setProfile(res.data);
+            }
         } catch (error) {
             console.error('Failed to fetch client profile:', error);
         } finally {

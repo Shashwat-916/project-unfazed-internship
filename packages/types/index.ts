@@ -5,6 +5,11 @@ export * from "./validations/service.types"
 export * from "./validations/therapist.types"
 export * from "./validations/appointment.types"
 export * from "./validations/payment.types"
+export * from "./validations/clientIntake.types"
+export * from "./validations/sessionNotes.types"
+export * from "./validations/conversation.types"
+export * from "./validations/message.types"
+export * from "./validations/notification.types"
 
 
 

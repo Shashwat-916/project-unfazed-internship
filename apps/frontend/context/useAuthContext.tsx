@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     // Fetch user info when token is present
                     const tempUserService = new UserRoutes(storedToken);
                     const userData = await tempUserService.getCurrentUser();
-                    setUser(userData);
+                    setUser(userData.user || userData.data || userData);
                 } catch (error) {
                     console.error('Failed to fetch user:', error);
                     localStorage.removeItem('token');

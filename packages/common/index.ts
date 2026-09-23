@@ -69,3 +69,9 @@ export const SEND_OTP_QUEUE = "send:otp"
 function CheckEnv(env: string[]) {
     // check if all the env variables are set if not then throw an error
 }
+
+
+export const OTP_EMAIL_QUEUE = "otp-email"
+export const PAYMENT_CLIENT_QUEUE = "payment-success-client"
+export const PAYMENT_THERAPIST_QUEUE = "payment-success-therapist"
+export const QUEUE_MESSAGES = "enrich:db"

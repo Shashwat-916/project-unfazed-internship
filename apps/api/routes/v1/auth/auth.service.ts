@@ -1,7 +1,7 @@
 import { prisma } from '@repo/db'
 
 import crypto from 'crypto'
-import { JWT_SECRET, SEND_OTP_QUEUE } from '../../../../../packages/common'
+import { JWT_SECRET, OTP_EMAIL_QUEUE } from '../../../../../packages/common'
 import jwt from 'jsonwebtoken'
 import { redis } from '@repo/redis'
 
@@ -83,8 +83,8 @@ export class AuthService {
     }
 
     async PushEmailJob(email: string, otp: string, password?: string) {
-        if (!SEND_OTP_QUEUE) throw new Error("SEND_OTP_QUEUE is not defined");
+        if (!OTP_EMAIL_QUEUE) throw new Error("OTP_EMAIL_QUEUE is not defined");
         const payload = JSON.stringify({ email, otp, password });
-        await redis.lPush(SEND_OTP_QUEUE, payload);
+        await redis.lPush(OTP_EMAIL_QUEUE, payload);
     }
 }

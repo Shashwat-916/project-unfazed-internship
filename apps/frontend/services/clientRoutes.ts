@@ -24,8 +24,28 @@ export class ClientRoutes {
         return response.data;
     }
 
+    async updateStatus(status: 'ACTIVE' | 'INACTIVE') {
+        const response = await axios.patch(`${API_BASE_URL}/client/updatestatus`, { status }, { headers: this.getHeaders() });
+        return response.data;
+    }
+
     async getPresignedUrl() {
         const response = await axios.get(`${API_BASE_URL}/client/me/image/presignedUrl`, { headers: this.getHeaders() });
+        return response.data;
+    }
+
+    async saveProfileImageUrl(url: string) {
+        const response = await axios.post(`${API_BASE_URL}/client/me/image/presignedUrl/db`, { url }, { headers: this.getHeaders() });
+        return response.data;
+    }
+
+    async findAllTherapists() {
+        const response = await axios.get(`${API_BASE_URL}/client/findtherapist`, { headers: this.getHeaders() });
+        return response.data;
+    }
+
+    async findTherapistBySlug(slug: string) {
+        const response = await axios.get(`${API_BASE_URL}/client/findtherapist/${slug}`, { headers: this.getHeaders() });
         return response.data;
     }
 }

@@ -8,18 +8,29 @@ import Link from 'next/link';
 interface NavBarProps {
     sidebarOpen: boolean;
     setSidebarOpen: (open: boolean) => void;
-    userRole: 'Therapist' | 'Client';
-    userName: string;
-    userInitials: string;
-    profileImage?: string | null;
 }
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Logo from '../landing/Logo';
 import TherapistNotificationDropdown from './TherapistNotificationDropDown';
+import { useTherapistContext } from '@/context/useTherapistContext';
+import { useAuthContext } from '@/context/useAuthContext';
+import { useRouter } from 'next/navigation';
 
-
-export default function NavBarTherapist({ sidebarOpen, setSidebarOpen, userRole, userName, userInitials, profileImage }: NavBarProps) {
+export default function NavBarTherapist({ sidebarOpen, setSidebarOpen }: NavBarProps) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const { profile } = useTherapistContext();
+    const { logout } = useAuthContext();
+    const router = useRouter();
+
+    const handleLogout = () => {
+        logout();
+        router.push('/');
+    };
+    
+    const userName = profile?.user?.name || "Therapist";
+    const userRole = "Therapist";
+    const userInitials = userName.substring(0, 2).toUpperCase();
+    const profileImage = profile?.profileImage;
 
     return (
         <header className=" bg-white border-b fixed top-0 left-0 right-0 z-50 flex items-center justify-center h-24 " >
@@ -68,7 +79,7 @@ export default function NavBarTherapist({ sidebarOpen, setSidebarOpen, userRole,
                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 z-50 overflow-hidden animate-in slide-in-from-top-2 fade-in duration-200">
                                     <div className="py-1">
                                         <Link
-                                            href={userRole === 'Therapist' ? '/api/therapist/profile' : '/api/client/profile'}
+                                            href='/api/therapist/profile'
                                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"
                                         >
                                             Profile Settings
@@ -77,7 +88,7 @@ export default function NavBarTherapist({ sidebarOpen, setSidebarOpen, userRole,
                                         <button
                                             onClick={() => {
                                                 setDropdownOpen(false);
-                                               
+                                                handleLogout();
                                             }}
                                             className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors"
                                         >
