@@ -7,6 +7,9 @@ import RegistrationVerifyOtpStep from "./Registration.VerifyOtp"
 import RegistrationChooseRole from "./Registration.ChooseRole"
 import RegistrationClientFormStep from "./Registration.ClientForm"
 import RegistrationTherapistFormStep from "./Registration.TherapistForm"
+import { useAuthContext } from "@/context/useAuthContext"
+import { useRouter } from "next/navigation"
+import { Alert, AlertTitle, AlertDescription } from "@/components/reui/alert"
 
 const steps = [1, 2, 3, 4]
 
@@ -24,43 +27,100 @@ export function RegistrationStepper() {
     const [clientData, setClientData] = useState({ name: "", phoneNumber: "" });
     const [therapistData, setTherapistData] = useState({ name: "", phoneNumber: "", bio: "", specialization: "", languages: "" });
 
+    // Alert states
+    const [errorMsg, setErrorMsg] = useState("");
+    const [successMsg, setSuccessMsg] = useState("");
+
+    const { authService, login } = useAuthContext();
+    const router = useRouter();
+
     const handleNext = () => setCurrentStep((prev) => Math.min(prev + 1, 4));
     const handleBack = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
-    const handleSendOtpSubmit = () => {
+    const handleSendOtpSubmit = async () => {
         setIsLoading(true);
-        // Simulate API call
-        setTimeout(() => {
+        setErrorMsg("");
+        setSuccessMsg("");
+        try {
+            await authService.sendOtp({ email });
+            setSuccessMsg("OTP sent successfully!");
+            setTimeout(() => { setSuccessMsg(""); handleNext(); }, 1500);
+        } catch (error: any) {
+            console.error(error);
+            setErrorMsg(error?.response?.data?.message || "Failed to send OTP.");
+        } finally {
             setIsLoading(false);
-            handleNext();
-        }, 1000);
+        }
     }
 
-    const handleVerifyOtpSubmit = (e: React.FormEvent) => {
+    const handleVerifyOtpSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => {
+        setErrorMsg("");
+        setSuccessMsg("");
+        try {
+            await authService.verifyOtp({ email, otp });
+            setSuccessMsg("OTP verified successfully!");
+            setTimeout(() => { setSuccessMsg(""); handleNext(); }, 1500);
+        } catch (error: any) {
+            console.error(error);
+            setErrorMsg(error?.response?.data?.message || "Failed to verify OTP.");
+        } finally {
             setIsLoading(false);
-            handleNext();
-        }, 1000);
+        }
     }
 
-    const handleClientSubmit = (e: React.FormEvent) => {
+    const handleClientSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => {
+        setErrorMsg("");
+        setSuccessMsg("");
+        try {
+            const res = await authService.registerClient({
+                email,
+                password,
+                name: clientData.name,
+                phoneNumber: clientData.phoneNumber
+            });
+            if (res.token && res.user) {
+                login(res.token, res.user);
+            }
+            setSuccessMsg("Client Registration Complete! Redirecting...");
+            setTimeout(() => router.push("/"), 1500);
+        } catch (error: any) {
+            console.error(error);
+            setErrorMsg(error?.response?.data?.message || "Failed to register client.");
+        } finally {
             setIsLoading(false);
-            alert("Client Registration Complete");
-        }, 1000);
+        }
     }
 
-    const handleTherapistSubmit = (e: React.FormEvent) => {
+    const handleTherapistSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => {
+        setErrorMsg("");
+        setSuccessMsg("");
+        try {
+            const res = await authService.registerTherapist({
+                email,
+                password,
+                name: therapistData.name,
+                phoneNumber: therapistData.phoneNumber,
+                bio: therapistData.bio,
+                specialization: therapistData.specialization,
+                languages: therapistData.languages
+            });
+            if (res.token && res.user) {
+                login(res.token, res.user);
+            }
+            setSuccessMsg("Therapist Registration Complete! Redirecting...");
+            setTimeout(() => router.push("/"), 1500);
+        } catch (error: any) {
+            console.error(error);
+            setErrorMsg(error?.response?.data?.message || "Failed to register therapist.");
+        } finally {
             setIsLoading(false);
-            alert("Therapist Registration Complete");
-        }, 1000);
+        }
     }
 
     return (
@@ -92,6 +152,22 @@ export function RegistrationStepper() {
                         </StepperItem>
                     ))}
                 </StepperNav>
+                
+                <div className="w-full max-w-xl mx-auto mb-6">
+                    {errorMsg && (
+                        <Alert variant="destructive">
+                            <AlertTitle>Error</AlertTitle>
+                            <AlertDescription>{errorMsg}</AlertDescription>
+                        </Alert>
+                    )}
+                    {successMsg && (
+                        <Alert variant="success">
+                            <AlertTitle>Success</AlertTitle>
+                            <AlertDescription>{successMsg}</AlertDescription>
+                        </Alert>
+                    )}
+                </div>
+
                 <StepperPanel className="text-sm w-full">
                     {steps.map((step) => (
                         <StepperContent

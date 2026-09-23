@@ -44,6 +44,7 @@
       "dependencies": {
         "@base-ui/react": "^1.8.0",
         "@repo/types": "*",
+        "axios": "^1.20.0",
         "class-variance-authority": "^0.7.1",
         "cn": "^0.4.0",
         "framer-motion": "^13.4.0",
@@ -69,8 +70,12 @@
     "apps/websocket": {
       "name": "websocket",
       "dependencies": {
+        "@repo/common": "*",
         "@repo/db": "*",
+        "@repo/redis": "*",
+        "@types/jsonwebtoken": "^9.0.10",
         "@types/ws": "^8.18.1",
+        "jsonwebtoken": "^9.0.3",
         "ws": "^8.21.3",
       },
       "devDependencies": {

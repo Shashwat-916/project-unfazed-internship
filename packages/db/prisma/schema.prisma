@@ -53,6 +53,7 @@ model User {
   client    Client?
 
   messages Message[]
+  notification Notification[]
 }
 
 model Therapist {
@@ -73,7 +74,6 @@ model Therapist {
   services      Service[]
   avalabilities Avalability[]
   appointments  Appointment[]
-  // messages      Message[]
   conversations Conversation[]
 }
 
@@ -86,7 +86,6 @@ model Client {
   user   User   @relation(fields: [userId], references: [id])
 
   appointments  Appointment[]
-  // messages      Message[]
   conversations Conversation[]
 }
 
@@ -196,4 +195,15 @@ model Conversation {
   messages  Message[]
   createdAt DateTime  @default(now())
 
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)   
+  content   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
