@@ -63,6 +63,25 @@ export class SessionNotesRepository {
         });
     }
 
+    async GetSharedNotesByClient(clientId: string, appointmentId?: string) {
+        // ENFORCEMENT: Only return SHARED notes to the client
+        return await prisma.sessionNote.findMany({
+            where: {
+                clientId,
+                type: "SHARED",
+                ...(appointmentId ? { appointmentId } : {})
+            },
+            include: {
+                therapist: {
+                    select: {
+                        user: { select: { name: true } }
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+    }
+
     async UpdateNote(id: string, therapistId: string, data: any) {
         // Ensure the note belongs to the therapist before updating
         const note = await prisma.sessionNote.findFirst({

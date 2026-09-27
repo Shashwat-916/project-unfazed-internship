@@ -17,7 +17,6 @@ export class SessionNotesController {
         this.sessionNotesRepository = sessionNotesRepository;
     }
 
-    // Helper to extract the therapist's profile ID from the user ID
     private async getTherapistId(userId: string) {
         const therapist = await prisma.therapist.findUnique({
             where: { userId }
@@ -26,6 +25,16 @@ export class SessionNotesController {
             throw new AppError("Therapist profile not found", 404);
         }
         return therapist.id;
+    }
+
+    private async getClientId(userId: string) {
+        const client = await prisma.client.findUnique({
+            where: { userId }
+        });
+        if (!client) {
+            throw new AppError("Client profile not found", 404);
+        }
+        return client.id;
     }
 
     CreateNote = AsyncHandler(async (req: AuthRequest, res: Response) => {
@@ -111,6 +120,22 @@ export class SessionNotesController {
 
         const therapistId = await this.getTherapistId(userId);
         const notes = await this.sessionNotesRepository.GetNotesByClient(clientId, therapistId);
+
+        return res.status(200).json({
+            success: true,
+            data: notes
+        });
+    });
+
+    GetSharedNotesForClient = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const userId = req.user?.userId;
+        if (!userId) throw new AppError("Unauthorized", 401);
+        
+        const clientId = await this.getClientId(userId);
+        const appointmentId = req.query.appointmentId as string | undefined;
+
+        // ENFORCEMENT: Delegate to repo which strictly returns SHARED notes
+        const notes = await this.sessionNotesRepository.GetSharedNotesByClient(clientId, appointmentId);
 
         return res.status(200).json({
             success: true,

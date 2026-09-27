@@ -9,8 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@babel/core": "^8.0.6",
+    "@babel/generator": "^8.0.6",
+    "@babel/parser": "^7.29.9",
+    "@babel/traverse": "^8.0.6",
+    "@babel/types": "^8.0.6",
     "@base-ui/react": "^1.8.0",
     "@repo/types": "*",
+    "@tiptap/react": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
     "axios": "^1.20.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",

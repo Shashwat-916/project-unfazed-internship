@@ -38,7 +38,10 @@ export class PaymentRepository {
     ) {
         return prisma.appointment.update({
             where: { id: appointmentId },
-            data: { appointmentStatus: status },
+            data: { 
+                appointmentStatus: status,
+                paymentStatus: status === "CONFIRMED" ? "SUCCESS" : "FAILED"
+            },
         });
     }
 

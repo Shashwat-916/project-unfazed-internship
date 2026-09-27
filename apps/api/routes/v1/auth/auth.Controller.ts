@@ -113,7 +113,7 @@ export class AuthController {
         const { data, success, error } = RegisterClientValidation.safeParse(req.body);
         if (!success) {
             return res.status(400).json({
-                success: false, message: "Invalid schema", errors: error.issues
+                success: false, message: "Invalid Credentials", errors: error.issues
             });
         }
 

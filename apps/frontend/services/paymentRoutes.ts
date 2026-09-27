@@ -15,7 +15,12 @@ export class PaymentRoutes {
     }
 
     async verifyPayment(data: any) {
-        const response = await axios.post(`${API_BASE_URL}/payment/verify`, data, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.post(`${API_BASE_URL}/payment/verify`, data, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 }

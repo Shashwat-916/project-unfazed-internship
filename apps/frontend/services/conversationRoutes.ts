@@ -15,17 +15,32 @@ export class ConversationRoutes {
     }
 
     async getMyConversations() {
-        const response = await axios.get(`${API_BASE_URL}/conversation`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/conversation`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async createConversation(payload: { therapistId?: string, clientId?: string }) {
-        const response = await axios.post(`${API_BASE_URL}/conversation`, payload, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.post(`${API_BASE_URL}/conversation`, payload, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async getConversationById(id: string) {
-        const response = await axios.get(`${API_BASE_URL}/conversation/${id}`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/conversation/${id}`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 }

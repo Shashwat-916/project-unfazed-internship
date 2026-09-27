@@ -230,7 +230,7 @@ export default function TherapistProfilePage() {
                                         type="button"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            const url = `${window.location.origin}/therapist/${profileData.slug}`;
+                                            const url = `${window.location.origin}/api/${profileData.slug}`;
                                             navigator.clipboard.writeText(url);
                                             setSuccessMsg("Profile link copied to clipboard!");
                                             setTimeout(() => setSuccessMsg(""), 3000);

@@ -35,7 +35,14 @@ export default function ClientMessagesPage() {
             try {
                 const data = JSON.parse(event.data);
                 if (data.type === "new_message") {
-                    setMessages(prev => [...prev, data.message]);
+                    // Only append if it belongs to the conversation we are currently looking at
+                    setMessages(prev => {
+                        // Check if the message is for the active conversation
+                        if (activeConversation && data.message.conversationId === activeConversation.id) {
+                            return [...prev, data.message];
+                        }
+                        return prev;
+                    });
                 }
             } catch (error) {
                 console.error("Failed to parse websocket message", error);
@@ -46,7 +53,7 @@ export default function ClientMessagesPage() {
         return () => {
             socket.removeEventListener("message", handleReceiveMessage);
         };
-    }, [socket]);
+    }, [socket, activeConversation]);
 
     const fetchConversations = async () => {
         setIsLoading(true);
@@ -197,7 +204,7 @@ export default function ClientMessagesPage() {
                             </div>
                             <div>
                                 <h3 className="font-bold text-slate-800 text-lg">{activeConversation.therapist?.user?.name}</h3>
-                                <p className="text-xs text-emerald-600">Connected securely</p>
+                                <p className="text-xs text-emerald-600">online</p>
                             </div>
                         </div>
 

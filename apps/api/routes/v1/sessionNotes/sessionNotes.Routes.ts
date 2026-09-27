@@ -8,16 +8,22 @@ const sessionNotesRouter = Router();
 const sessionNotesRepository = new SessionNotesRepository();
 const sessionNotesController = new SessionNotesController({ sessionNotesRepository });
 
-// All session notes endpoints require authentication and THERAPIST role
-sessionNotesRouter.use(authMiddleware, requireRole(["THERAPIST"]));
 
-sessionNotesRouter.post("/", sessionNotesController.CreateNote);
-sessionNotesRouter.get("/", sessionNotesController.GetMyNotes);
-sessionNotesRouter.get("/:id", sessionNotesController.GetNoteById);
-sessionNotesRouter.patch("/:id", sessionNotesController.UpdateNote);
-sessionNotesRouter.delete("/:id", sessionNotesController.DeleteNote);
+sessionNotesRouter.get("/client-shared", authMiddleware, requireRole(["CLIENT"]), sessionNotesController.GetSharedNotesForClient);
 
-sessionNotesRouter.get("/appointment/:appointmentId", sessionNotesController.GetNotesByAppointment);
-sessionNotesRouter.get("/client/:clientId", sessionNotesController.GetNotesByClient);
+
+const therapistRouter = Router();
+therapistRouter.use(authMiddleware, requireRole(["THERAPIST"]));
+
+therapistRouter.post("/", sessionNotesController.CreateNote);
+therapistRouter.get("/", sessionNotesController.GetMyNotes);
+therapistRouter.get("/:id", sessionNotesController.GetNoteById);
+therapistRouter.patch("/:id", sessionNotesController.UpdateNote);
+therapistRouter.delete("/:id", sessionNotesController.DeleteNote);
+
+therapistRouter.get("/appointment/:appointmentId", sessionNotesController.GetNotesByAppointment);
+therapistRouter.get("/client/:clientId", sessionNotesController.GetNotesByClient);
+
+sessionNotesRouter.use("/", therapistRouter);
 
 export default sessionNotesRouter;

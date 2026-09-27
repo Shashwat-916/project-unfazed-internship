@@ -28,25 +28,45 @@ export class AvailabilityRoutes {
     }
 
     async getTimeSlots(): Promise<{ success: boolean; data: TimeSlot[] }> {
-        const response = await axios.get(`${API_BASE_URL}/avalability/time-slots`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/avalability/time-slots`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async getAvailability(dayOfWeek?: string): Promise<{ success: boolean; data: Availability[] }> {
         const url = dayOfWeek 
             ? `${API_BASE_URL}/avalability?dayOfWeek=${dayOfWeek}` 
             : `${API_BASE_URL}/avalability`;
-        const response = await axios.get(url, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(url, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async createAvailability(data: { dayOfWeek: string; timeSlotId: number }): Promise<{ success: boolean; message: string; data: Availability }> {
-        const response = await axios.post(`${API_BASE_URL}/avalability/create`, data, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.post(`${API_BASE_URL}/avalability/create`, data, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async deleteAvailability(availabilityId: string): Promise<{ success: boolean; message: string }> {
-        const response = await axios.delete(`${API_BASE_URL}/avalability/${availabilityId}`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.delete(`${API_BASE_URL}/avalability/${availabilityId}`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 }

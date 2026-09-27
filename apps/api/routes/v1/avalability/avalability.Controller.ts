@@ -78,6 +78,7 @@ export class AvailabilityController {
             const dayOfWeek = req.query.dayOfWeek as string | undefined;
             const availability = await this.avalabilityRepository.GetAvailabilityByTherapist(therapist.id, dayOfWeek);
 
+      
             return res.status(200).json({
                 success: true,
                 data: availability

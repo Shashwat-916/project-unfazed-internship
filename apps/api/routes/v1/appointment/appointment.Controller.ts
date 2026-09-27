@@ -73,11 +73,12 @@ export class AppointmentControler {
             return res.status(400).json({ success: false, message: "Service does not belong to the selected therapist" });
         }
 
-        //CheckIf the date  day and timslot is already booked in the Booked table which we will soon impolement we assume that this all information is not booked
-        // if everything is valid then we are going to craete the appointment
-       
-
         
+        const parsedDate = new Date(date);
+        const isBooked = await this.appointmentRespository.checkIfBooked(therapist.id, parsedDate, timeslot.startTime, timeslot.endTime);
+        if (isBooked) {
+            return res.status(400).json({ success: false, message: "This time slot is already booked" });
+        }
         const appointment = await this.appointmentService.BookAppointMentEnrich(
             client.id,
             service.id,

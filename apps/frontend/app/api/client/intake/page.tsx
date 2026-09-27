@@ -62,8 +62,8 @@ export default function ClientIntakePage() {
                     });
                 }
             } catch (error: any) {
-                // If 404, it means they don't have an intake yet. We just continue with empty form.
-                if (error?.response?.status !== 404) {
+                // If the error message indicates not found, it means they don't have an intake yet.
+                if (error?.message !== "Client intake not found") {
                     console.error("Error fetching intake:", error);
                     setErrorMsg("Failed to load your intake data.");
                 }

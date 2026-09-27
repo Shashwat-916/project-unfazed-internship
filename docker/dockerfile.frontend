@@ -1,0 +1,36 @@
+# Stage 1: Prune the workspace for the specific app
+FROM oven/bun:1-alpine AS pruner
+WORKDIR /app
+COPY . .
+RUN bunx turbo prune frontend --docker
+
+# Stage 2: Install dependencies
+FROM oven/bun:1-alpine AS installer
+WORKDIR /app
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/bun.lock ./bun.lock
+RUN bun install --frozen-lockfile
+
+# Stage 3: Build the application
+FROM oven/bun:1-alpine AS builder
+WORKDIR /app
+COPY --from=installer /app/ .
+COPY --from=pruner /app/out/full/ .
+
+# Build the frontend
+RUN bunx turbo run build --filter=frontend
+
+# Stage 4: Run the application
+FROM oven/bun:1-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV HOSTNAME="0.0.0.0"
+ENV PORT=3000
+EXPOSE 3000
+
+COPY --from=builder /app/apps/frontend/.next/standalone ./
+COPY --from=builder /app/apps/frontend/.next/static ./apps/frontend/.next/static
+COPY --from=builder /app/apps/frontend/public ./apps/frontend/public
+
+CMD ["bun", "run", "apps/frontend/server.js"]

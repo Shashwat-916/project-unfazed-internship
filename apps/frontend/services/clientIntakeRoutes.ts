@@ -15,17 +15,29 @@ export class ClientIntakeRoutes {
     }
 
     async getIntake() {
-        const response = await axios.get(`${API_BASE_URL}/client-intake/me`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/client-intake/me`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async createIntake(data: any) {
-        const response = await axios.post(`${API_BASE_URL}/client-intake/me`, data, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.post(`${API_BASE_URL}/client-intake/me`, data, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async updateIntake(data: any) {
-        const response = await axios.patch(`${API_BASE_URL}/client-intake/me`, data, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.patch(`${API_BASE_URL}/client-intake/me`, data, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 }

@@ -36,6 +36,17 @@ export class AppointmentRespository {
         return prisma.timeSlot.findUnique({ where: { id } });
     }
 
+    async checkIfBooked(therapistId: string, date: Date, startTime: Date, endTime: Date) {
+        return prisma.bookedAppointment.findFirst({
+            where: {
+                therapistId,
+                date,
+                startTime,
+                endTime
+            }
+        });
+    }
+
     
 
     async getAppointmentsByTherapist(therapistId: string) {
@@ -46,7 +57,8 @@ export class AppointmentRespository {
                     include: {
                         user: {
                             select: { name: true }
-                        }
+                        },
+                        intake: true
                     }
                 },
                 service: true

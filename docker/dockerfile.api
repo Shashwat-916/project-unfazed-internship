@@ -1,0 +1,43 @@
+# Stage 1: Prune the workspace for the specific app
+FROM oven/bun:1-alpine AS pruner
+WORKDIR /app
+COPY . .
+RUN bunx turbo prune api --docker
+
+# Stage 2: Install dependencies
+FROM oven/bun:1-alpine AS installer
+WORKDIR /app
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/bun.lock ./bun.lock
+RUN bun install --frozen-lockfile
+
+# Stage 3: Build the application
+FROM oven/bun:1-alpine AS builder
+WORKDIR /app
+COPY --from=installer /app/ .
+COPY --from=pruner /app/out/full/ .
+
+# Generate Prisma Client if it exists
+RUN cd packages/db && bunx prisma@5.21.1 generate || true
+
+# Build the api
+RUN bunx turbo run build --filter=api
+
+# Stage 4: Run the application
+FROM oven/bun:1-alpine AS runner
+WORKDIR /app
+
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/bun.lock ./bun.lock
+RUN bun install --frozen-lockfile --production
+
+COPY --from=builder /app/packages ./packages
+RUN cd packages/db && bunx prisma@5.21.1 generate || true
+
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+
+WORKDIR /app/apps/api
+ENV NODE_ENV=production
+EXPOSE 5000
+
+CMD ["bun", "run", "dist/index.js"]

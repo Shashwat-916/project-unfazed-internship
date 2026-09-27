@@ -15,12 +15,22 @@ export class MessageRoutes {
     }
 
     async getMessages(conversationId: string) {
-        const response = await axios.get(`${API_BASE_URL}/message/${conversationId}`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/message/${conversationId}`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async sendMessage(conversationId: string, content: string) {
-        const response = await axios.post(`${API_BASE_URL}/message/${conversationId}`, { content }, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.post(`${API_BASE_URL}/message/${conversationId}`, { content }, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 }

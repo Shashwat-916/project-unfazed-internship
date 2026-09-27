@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "bun --watch index.ts",
-    "build": "bun build ./index.ts --outdir ./dist --target node"
+    "build": "bun build ./index.ts --outdir ./dist --target node --packages=external"
   },
   "peerDependencies": {
     "typescript": "^5"

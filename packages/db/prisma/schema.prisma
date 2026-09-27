@@ -87,6 +87,7 @@ model Therapist {
     appointments  Appointment[]
     conversations Conversation[]
     notes         SessionNote[]
+    bookedAppointments BookedAppointment[]
 }
 
 model Client {
@@ -168,6 +169,22 @@ model Appointment {
     notes SessionNote[]
 
     @@index([therapistId, startTime])
+}
+
+model BookedAppointment {
+    id          String   @id @default(uuid())
+    
+    therapistId String
+    therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+    
+    date        DateTime
+    month       Int
+    startTime   DateTime @db.Time
+    endTime     DateTime @db.Time
+
+    createdAt   DateTime @default(now())
+
+    @@index([therapistId, date])
 }
 
 model Payment {

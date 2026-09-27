@@ -15,37 +15,72 @@ export class ClientRoutes {
     }
 
     async getProfile() {
-        const response = await axios.get(`${API_BASE_URL}/client/me`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/client/me`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async updateProfile(data: any) {
-        const response = await axios.patch(`${API_BASE_URL}/client/me`, data, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.patch(`${API_BASE_URL}/client/me`, data, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async updateStatus(status: 'ACTIVE' | 'INACTIVE') {
-        const response = await axios.patch(`${API_BASE_URL}/client/updatestatus`, { status }, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.patch(`${API_BASE_URL}/client/updatestatus`, { status }, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async getPresignedUrl() {
-        const response = await axios.get(`${API_BASE_URL}/client/me/image/presignedUrl`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/client/me/image/presignedUrl`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async saveProfileImageUrl(url: string) {
-        const response = await axios.post(`${API_BASE_URL}/client/me/image/presignedUrl/db`, { url }, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.post(`${API_BASE_URL}/client/me/image/presignedUrl/db`, { url }, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async findAllTherapists() {
-        const response = await axios.get(`${API_BASE_URL}/client/findtherapist`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/client/findtherapist`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async findTherapistBySlug(slug: string) {
-        const response = await axios.get(`${API_BASE_URL}/client/findtherapist/${slug}`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/client/findtherapist/${slug}`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 }

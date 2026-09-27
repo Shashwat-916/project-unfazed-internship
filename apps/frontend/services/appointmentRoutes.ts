@@ -15,17 +15,29 @@ export class AppointmentRoutes {
     }
 
     async bookAppointment(data: any) {
-        const response = await axios.post(`${API_BASE_URL}/appointment/book`, data, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.post(`${API_BASE_URL}/appointment/book`, data, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async getClientAppointments() {
-        const response = await axios.get(`${API_BASE_URL}/appointment/client`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/appointment/client`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 
     async getTherapistAppointments() {
-        const response = await axios.get(`${API_BASE_URL}/appointment/therapist`, { headers: this.getHeaders() });
-        return response.data;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/appointment/therapist`, { headers: this.getHeaders() });
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
     }
 }

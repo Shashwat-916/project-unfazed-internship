@@ -7,16 +7,17 @@
     ".": "./index.ts"
   },
   "devDependencies": {
+    "@prisma/config": "^7.10.0",
     "@types/bun": "latest",
     "@types/pg": "^8.23.1",
-    "prisma": "^7.10.0"
+    "prisma": "^5.21.1"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.10.0",
-    "@prisma/client": "7",
+    "@prisma/adapter-pg": "^5.21.1",
+    "@prisma/client": "^5.21.1",
     "dotenv": "^18.0.2",
     "pg": "^8.23.0"
   }

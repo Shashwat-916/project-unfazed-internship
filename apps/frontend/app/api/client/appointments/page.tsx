@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { AppointmentRoutes } from "@/services/appointmentRoutes";
 import { AppProvider } from "@/context/AppProvider";
-import { Calendar, Clock, Video, Loader2, CheckCircle2, Clock3 } from "lucide-react";
+import { Calendar, Clock, Video, Loader2, CheckCircle2, Clock3, UserCircle, Globe, Tag, FileText } from "lucide-react";
+import { ClientGetSessionNotes } from "@/components/ClientGetSessionNotes";
+import { VideoCall } from "@/components/VideoCall";
 
 interface Appointment {
     id: string;
@@ -19,6 +21,10 @@ interface Appointment {
         user?: {
             name: string;
         };
+        specialization?: string[];
+        bio?: string[];
+        profileImage?: string;
+        languages?: string[];
     };
     service?: {
         name: string;
@@ -34,6 +40,8 @@ function ClientAppointmentsContent() {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
+    const [selectedNotesAppointment, setSelectedNotesAppointment] = useState<string | null>(null);
+    const [videoCallData, setVideoCallData] = useState<{ id: string, peerName: string, peerImage?: string } | null>(null);
 
     useEffect(() => {
         const fetchAppointments = async () => {
@@ -127,14 +135,41 @@ function ClientAppointmentsContent() {
                                         {/* Left: Info */}
                                         <div className="flex-1 space-y-4">
                                             <div className="flex items-start justify-between">
-                                                <div>
-                                                    <h3 className="text-xl font-bold text-slate-900">{therapistName}</h3>
-                                                    <p className="text-primary font-medium">{serviceName}</p>
+                                                <div className="flex items-center gap-4">
+                                                    {appointment.therapist?.profileImage ? (
+                                                        <img src={appointment.therapist.profileImage} alt={therapistName} className="size-12 rounded-full object-cover" />
+                                                    ) : (
+                                                        <div className="size-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                                            <UserCircle className="size-8" />
+                                                        </div>
+                                                    )}
+                                                    <div>
+                                                        <h3 className="text-xl font-bold text-slate-900">{therapistName}</h3>
+                                                        <p className="text-primary font-medium">{serviceName}</p>
+                                                    </div>
                                                 </div>
                                                 <span className={`px-3 py-1 text-xs font-bold rounded-full border uppercase tracking-wider ${getStatusStyle(appointment.appointmentStatus)}`}>
                                                     {appointment.appointmentStatus}
                                                 </span>
                                             </div>
+
+                                            {/* Therapist Profile Details */}
+                                            {(appointment.therapist?.specialization?.length || appointment.therapist?.languages?.length) && (
+                                                <div className="flex flex-wrap gap-2 text-xs">
+                                                    {appointment.therapist?.specialization?.slice(0, 3).map((spec, i) => (
+                                                        <span key={i} className="flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md border border-indigo-100">
+                                                            <Tag className="size-3" />
+                                                            {spec}
+                                                        </span>
+                                                    ))}
+                                                    {appointment.therapist?.languages?.slice(0, 3).map((lang, i) => (
+                                                        <span key={i} className="flex items-center gap-1 bg-teal-50 text-teal-700 px-2 py-1 rounded-md border border-teal-100">
+                                                            <Globe className="size-3" />
+                                                            {lang}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
 
                                             <div className="flex flex-wrap gap-4 text-sm text-slate-600">
                                                 <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
@@ -145,10 +180,26 @@ function ClientAppointmentsContent() {
                                                     <Clock3 className="size-4 text-slate-400" />
                                                     {time} ({duration} mins)
                                                 </div>
-                                                <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                                                    <Video className="size-4 text-slate-400" />
-                                                    Online Video
-                                                </div>
+                                                <button 
+                                                    onClick={() => setVideoCallData({
+                                                        id: appointment.id,
+                                                        peerName: therapistName,
+                                                        peerImage: appointment.therapist?.profileImage
+                                                    })}
+                                                    className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition-colors cursor-pointer"
+                                                >
+                                                    <Video className="size-4 text-indigo-500" />
+                                                    Join Online Video
+                                                </button>
+                                            </div>
+
+                                            <div className="mt-4">
+                                                <button 
+                                                    onClick={() => setSelectedNotesAppointment(appointment.id)}
+                                                    className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 text-sm font-semibold rounded-xl hover:bg-emerald-100 transition-colors border border-emerald-100"
+                                                >
+                                                    <FileText className="size-4" /> View Session Notes
+                                                </button>
                                             </div>
                                         </div>
 
@@ -167,12 +218,7 @@ function ClientAppointmentsContent() {
                                             </div>
 
                                             <div className="w-full">
-                                                {appointment.appointmentStatus === 'PENDING' && (
-                                                    <button className="w-full py-2.5 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-800 transition-colors">
-                                                        Join Session
-                                                    </button>
-                                                )}
-                                                
+                                                {/* Left intentionally blank or for future actions */}
                                             </div>
                                         </div>
                                     </div>
@@ -180,6 +226,25 @@ function ClientAppointmentsContent() {
                             );
                         })}
                     </div>
+                )}
+
+                <ClientGetSessionNotes 
+                    isOpen={selectedNotesAppointment !== null}
+                    onClose={() => setSelectedNotesAppointment(null)}
+                    appointmentId={selectedNotesAppointment || ""}
+                />
+
+                {/* Video Call Modal */}
+                {videoCallData && (
+                    <VideoCall
+                        isOpen={true}
+                        onClose={() => setVideoCallData(null)}
+                        appointmentId={videoCallData.id}
+                        userId="client" // could use clientId
+                        role="CLIENT"
+                        peerName={videoCallData.peerName}
+                        peerImage={videoCallData.peerImage}
+                    />
                 )}
             </div>
         </div>

@@ -54,6 +54,16 @@ export class AppointmentService {
                 include: { payment: true }
             });
 
+            await prisma.bookedAppointment.create({
+                data: {
+                    therapistId,
+                    date,
+                    month: date.getMonth() + 1,
+                    startTime,
+                    endTime
+                }
+            });
+
             return appointment;
         }
         catch (e) {
