@@ -2,11 +2,14 @@
 
 import React, { ReactNode } from 'react';
 import { AuthProvider } from './useAuthContext';
+import { SocketContextProvider } from './useSocketContext';
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
     return (
         <AuthProvider>
-            {children}
+            <SocketContextProvider>
+                {children}
+            </SocketContextProvider>
         </AuthProvider>
     );
 };

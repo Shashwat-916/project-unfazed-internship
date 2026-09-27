@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useAuthContext } from "@/context/useAuthContext";
-
+import { useSocketContext } from "@/context/useSocketContext";
 import { ConversationRoutes } from "@/services/conversationRoutes";
 import { MessageRoutes } from "@/services/messageRoutes";
 import { motion } from "framer-motion";
@@ -10,6 +10,7 @@ import { LoaderCircleIcon, SendIcon, UserIcon, ArrowLeftIcon } from "lucide-reac
 
 export default function ClientMessagesPage() {
     const { token, user } = useAuthContext();
+    const { socket, isConnected } = useSocketContext();
 
     const [conversations, setConversations] = useState<any[]>([]);
     const [activeConversation, setActiveConversation] = useState<any | null>(null);
@@ -26,6 +27,26 @@ export default function ClientMessagesPage() {
         if (!token) return;
         fetchConversations();
     }, [token]);
+
+    useEffect(() => {
+        if (!socket) return;
+        
+        const handleReceiveMessage = (event: MessageEvent) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === "new_message") {
+                    setMessages(prev => [...prev, data.message]);
+                }
+            } catch (error) {
+                console.error("Failed to parse websocket message", error);
+            }
+        };
+
+        socket.addEventListener("message", handleReceiveMessage);
+        return () => {
+            socket.removeEventListener("message", handleReceiveMessage);
+        };
+    }, [socket]);
 
     const fetchConversations = async () => {
         setIsLoading(true);
@@ -78,13 +99,22 @@ export default function ClientMessagesPage() {
         // 1. Optimistic UI update
         setMessages((prev) => [...prev, tempMsg]);
 
-        // 2. Fallback to REST API
-        try {
-            await messageRoutes.sendMessage(activeConversation.id, content);
-            // Re-fetch to get real ID and avoid duplicate optimistic messages on refresh
-            fetchMessages(activeConversation.id);
-        } catch (error) {
-            console.error("Failed to send message", error);
+        // 2. Send via WebSocket if connected
+        if (socket && isConnected) {
+            socket.send(JSON.stringify({
+                type: "chat",
+                conversationId: activeConversation.id,
+                content,
+                recipientId: activeConversation.therapist?.userId // Assuming this gets the other user's ID
+            }));
+        } else {
+            // Fallback to REST API
+            try {
+                await messageRoutes.sendMessage(activeConversation.id, content);
+                fetchMessages(activeConversation.id);
+            } catch (error) {
+                console.error("Failed to send message via REST", error);
+            }
         }
     };
 
