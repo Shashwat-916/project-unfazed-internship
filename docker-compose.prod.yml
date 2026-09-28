@@ -1,0 +1,87 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: unfazed_redis_prod
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - unfazed-network-prod
+    restart: always
+
+  api:
+    image: shashwat916/unfazed-api:latest
+    container_name: unfazed_api_prod
+    ports:
+      - "5000:5000"
+    env_file:
+      - prod.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - unfazed-network-prod
+    restart: always
+
+  frontend:
+    image: shashwat916/unfazed-frontend:latest
+    container_name: unfazed_frontend_prod
+    ports:
+      - "3000:3000" # Mapping to port 3000 for Nginx
+    env_file:
+      - prod.env
+    depends_on:
+      - api
+    networks:
+      - unfazed-network-prod
+    restart: always
+
+  worker:
+    image: shashwat916/unfazed-worker:latest
+    container_name: unfazed_worker_prod
+    env_file:
+      - prod.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - unfazed-network-prod
+    restart: always
+
+  websocket:
+    image: shashwat916/unfazed-websocket:latest
+    container_name: unfazed_websocket_prod
+    ports:
+      - "8080:8080"
+    env_file:
+      - prod.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - unfazed-network-prod
+    restart: always
+
+  webrtc:
+    image: shashwat916/unfazed-webrtc:latest
+    container_name: unfazed_webrtc_prod
+    ports:
+      - "8081:8081"
+    env_file:
+      - prod.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - unfazed-network-prod
+    restart: always
+
+networks:
+  unfazed-network-prod:
+    driver: bridge

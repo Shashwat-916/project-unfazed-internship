@@ -8,14 +8,22 @@
     "build": "bun build ./index.ts --outdir ./dist --target node --packages=external"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "@repo/redis": "*",
-    "@repo/common": "*"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "nodemailer": "^10.0.10"
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "@repo/common": "*",
+    "@repo/redis": "*",
+    "cloudinary": "^2.11.0",
+    "dotenv": "^18.0.4",
+    "minio": "^8.0.7",
+    "nodemailer": "^10.0.10",
+    "pg": "^8.23.0",
+    "redis": "^6.2.1",
+    "zod": "^4.6.5"
   }
 }

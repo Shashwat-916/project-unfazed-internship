@@ -44,7 +44,8 @@ export function VideoCall({ isOpen, onClose, appointmentId, userId, role, peerNa
         };
 
         const connectWebSocket = () => {
-            const ws = new WebSocket("ws://localhost:8081");
+            const webrtcUrl = "wss://unfazed.site/webrtc/";
+            const ws = new WebSocket(webrtcUrl);
             wsRef.current = ws;
 
             ws.onopen = () => {

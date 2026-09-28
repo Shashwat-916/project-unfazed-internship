@@ -9,12 +9,14 @@ export class RedisManager {
     private static instance: RedisManager
 
     private constructor() {
-        this.client = createClient()
+        const url = process.env.REDIS_URL || "redis://localhost:6379";
+
+        this.client = createClient({ url })
         this.client.on('error', (err) => { console.error("Redis Client Error:", err) })
         this.client.on('connect', () => { console.log("Redis connected Successfully") })
         this.client.connect().catch(console.error)
 
-        this.blockingClient = createClient()
+        this.blockingClient = createClient({ url })
         this.blockingClient.on('error', (err) => { console.error("Redis Blocking Client Error:", err) })
         this.blockingClient.on('connect', () => { console.log("Redis Blocking Client connected Successfully") })
         this.blockingClient.connect().catch(console.error)

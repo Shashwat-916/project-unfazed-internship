@@ -30,7 +30,7 @@ export class AuthController {
         if (!success) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid Schema",
+                message: "Incorrect Credentials",
                 errors: error.issues
             })
         }
@@ -78,7 +78,7 @@ export class AuthController {
         if (!success) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid Schema",
+                message: "Incorrect Credentials",
                 errors: error.issues
             })
         }

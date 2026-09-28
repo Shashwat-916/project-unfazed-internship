@@ -1,8 +1,7 @@
 import { z } from 'zod'
-import { GMAIL_REGEX, type UserRole } from '../index'
+import type { UserRole } from '../index'
 
-
-
+const GMAIL_REGEX = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?@gmail\.com$/;
 
 export const SendOtpZodValidation = z.object({
     email: z.string().regex(GMAIL_REGEX, "Only Gmail addresses are allowed"),

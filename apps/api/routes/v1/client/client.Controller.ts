@@ -5,13 +5,13 @@ import { AsyncHandler } from "../../../shared/api.handler";
 import type { ClientRespository } from "./clientRepository";
 import type { Request, Response } from 'express';
 import { AppError } from "../../../shared/api.error";
-import { MinioUpload } from "@repo/minio";
+import { CloudinaryUpload } from "@repo/cloudinary";
 import { ClientUpdateZodValidation } from "../../../../../packages/types/validations/client.types";
 import { prisma } from "@repo/db";
 
 
 interface IClientConntroller {
-    uploadService: MinioUpload
+    uploadService: CloudinaryUpload
     clientRespository: ClientRespository
 }
 
@@ -23,7 +23,7 @@ interface Therapist {
 
 export class ClientController {
 
-    private uploadService: MinioUpload
+    private uploadService: CloudinaryUpload
     private clientRespository: ClientRespository
 
     constructor({ uploadService, clientRespository }: IClientConntroller) {
@@ -99,11 +99,45 @@ export class ClientController {
             throw new AppError("Image URL is required", 400);
         }
 
-        const updatedProfile = await this.clientRespository.UpdateClientByUserId(userId, { profileImage: url });
+        const normalizedUrl = (() => {
+            try {
+                const parsed = new URL(url);
+                parsed.search = "";
+                return parsed.toString();
+            } catch {
+                return String(url).split("?")[0];
+            }
+        })();
+
+        const updatedProfile = await this.clientRespository.UpdateClientByUserId(userId, { profileImage: normalizedUrl });
 
         return res.status(200).json({
             success: true,
             message: "Profile image updated successfully",
+            data: updatedProfile
+        });
+    })
+
+    uploadImage = AsyncHandler(async(req:AuthRequest,res:Response)=>{
+        const userId = req.user?.userId;
+
+        if (!userId) {
+            throw new AppError("Unauthorized", 401);
+        }
+
+        const file = req.file;
+
+        if (!file) {
+            throw new AppError("Image file is required", 400);
+        }
+
+        const uploadResult = await this.uploadService.upload(file.buffer);
+        
+        const updatedProfile = await this.clientRespository.UpdateClientByUserId(userId, { profileImage: uploadResult.secure_url });
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile image uploaded successfully",
             data: updatedProfile
         });
     })

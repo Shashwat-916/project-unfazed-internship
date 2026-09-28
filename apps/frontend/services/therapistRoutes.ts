@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const API_BASE_URL = 'https://unfazed.site/api/v1';
 
 export class TherapistRoutes {
     private token?: string;
@@ -54,9 +54,33 @@ export class TherapistRoutes {
         }
     }
 
+    async uploadImage(file: File) {
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+            const response = await axios.post(`${API_BASE_URL}/therapist/me/image/upload`, formData, {
+                headers: { ...this.getHeaders(), "Content-Type": "multipart/form-data" }
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || error.message || "An error occurred during the request.");
+        }
+    }
+
     async saveProfileImageUrl(url: string) {
         try {
-            const response = await axios.post(`${API_BASE_URL}/therapist/me/image/presignedUrl/db`, { url }, { headers: this.getHeaders() });
+            const normalizedUrl = (() => {
+                try {
+                    const parsed = new URL(url);
+                    parsed.search = "";
+                    return parsed.toString();
+                } catch {
+                    return url.split("?")[0];
+                }
+            })();
+
+            const response = await axios.post(`${API_BASE_URL}/therapist/me/image/presignedUrl/db`, { url: normalizedUrl }, { headers: this.getHeaders() });
             return response.data;
         } catch (error: any) {
             console.error("API Error:", error.response?.data || error.message);

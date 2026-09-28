@@ -32,7 +32,7 @@ export default function LoginPage() {
             }
         } catch (error: any) {
             console.error("Login Error:", error);
-            setErrorMsg(error?.response?.data?.message || "An error occurred during login.");
+            setErrorMsg(error?.response?.data?.message || "Please Check your Credentials .");
         } finally {
             setIsLoading(false);
         }

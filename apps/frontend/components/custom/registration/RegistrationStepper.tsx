@@ -47,7 +47,7 @@ export function RegistrationStepper() {
             setTimeout(() => { setSuccessMsg(""); handleNext(); }, 1500);
         } catch (error: any) {
             console.error(error);
-            setErrorMsg(error?.response?.data?.message || "Failed to send OTP.");
+            setErrorMsg(error?.response?.data?.message || "Please Check your Credentials .");
         } finally {
             setIsLoading(false);
         }

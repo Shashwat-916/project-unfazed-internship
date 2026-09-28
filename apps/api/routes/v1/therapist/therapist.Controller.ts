@@ -3,18 +3,18 @@ import { AsyncHandler } from "../../../shared/api.handler";
 import type { TherapistRespository } from "./therapistRepository";
 import type { Request, Response } from 'express';
 import { AppError } from "../../../shared/api.error";
-import { MinioUpload } from "@repo/minio";
+import { CloudinaryUpload } from "@repo/cloudinary";
 import { TherapistUpdateZodValidation } from "../../../../../packages/types/validations/therapist.types";
 
 
 interface ITherapistConntroller {
-    uploadService: MinioUpload
+    uploadService: CloudinaryUpload
     therapistRespository: TherapistRespository
 }
 
 export class TherapistController {
 
-    private uploadService: MinioUpload
+    private uploadService: CloudinaryUpload
     private therapistRespository: TherapistRespository
 
     constructor({ uploadService, therapistRespository }: ITherapistConntroller) {
@@ -90,11 +90,45 @@ export class TherapistController {
             throw new AppError("Image URL is required", 400);
         }
 
-        const updatedProfile = await this.therapistRespository.UpdateTherapistByUserId(userId, { profileImage: url });
+        const normalizedUrl = (() => {
+            try {
+                const parsed = new URL(url);
+                parsed.search = "";
+                return parsed.toString();
+            } catch {
+                return String(url).split("?")[0];
+            }
+        })();
+
+        const updatedProfile = await this.therapistRespository.UpdateTherapistByUserId(userId, { profileImage: normalizedUrl });
 
         return res.status(200).json({
             success: true,
             message: "Profile image updated successfully",
+            data: updatedProfile
+        });
+    })
+
+    uploadImage = AsyncHandler(async(req:AuthRequest,res:Response)=>{
+        const userId = req.user?.userId;
+
+        if (!userId) {
+            throw new AppError("Unauthorized", 401);
+        }
+
+        const file = req.file;
+
+        if (!file) {
+            throw new AppError("Image file is required", 400);
+        }
+
+        const uploadResult = await this.uploadService.upload(file.buffer);
+        
+        const updatedProfile = await this.therapistRespository.UpdateTherapistByUserId(userId, { profileImage: uploadResult.secure_url });
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile image uploaded successfully",
             data: updatedProfile
         });
     })

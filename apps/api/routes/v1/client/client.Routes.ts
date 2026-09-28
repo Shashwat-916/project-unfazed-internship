@@ -2,13 +2,13 @@ import { Router } from "express";
 import { authMiddleware, requireRole } from "../../../middleware/authMiddlware";
 import { ClientController } from "./client.Controller";
 import { ClientRespository } from "./clientRepository";
-import { MinioUpload, multerMemory } from "@repo/minio";
+import { CloudinaryUpload, multerMemory } from "@repo/cloudinary";
 
 const clientRouter = Router();
 
 
 const clientRespository = new ClientRespository();
-const uploadService = new MinioUpload(); 
+const uploadService = new CloudinaryUpload(); 
 const clientController = new ClientController({ uploadService, clientRespository });
 
 
@@ -21,5 +21,6 @@ clientRouter.get("/me", clientController.GetProfileClient);
 clientRouter.patch("/me", clientController.UpdateProfileClient);
 clientRouter.patch("/updatestatus", clientController.UpdateStatus);
 clientRouter.post("/me/image/presignedUrl/db", clientController.uploadPresignedUrl);
+clientRouter.post("/me/image/upload", multerMemory.single("file"), clientController.uploadImage);
 
 export default clientRouter;

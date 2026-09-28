@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { SendOtpInputType , VerifyOtpInputType , RegisterClientInputType , RegisterTherapistInputType} from '@repo/types'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const API_BASE_URL = 'https://unfazed.site/api/v1';
+console.log(API_BASE_URL)
 
 export class AuthRoutes {
     private token?: string;

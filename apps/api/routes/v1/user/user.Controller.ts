@@ -21,7 +21,7 @@ export class UserController {
         if (!success) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid Schema",
+                message: "Incorrect Credentials",
                 errors: error.issues
             });
         }
@@ -35,7 +35,9 @@ export class UserController {
         const isPasswordValid = await bcrypt.compare(data.password, user.password);
 
         if (!isPasswordValid) {
-            throw new AppError("Invalid email or password", 401);
+           return res.status(400).json({
+            message:"Invalid Password"
+           })
         }
 
         const token = this.userService.GenerateToken({ id: user.id });

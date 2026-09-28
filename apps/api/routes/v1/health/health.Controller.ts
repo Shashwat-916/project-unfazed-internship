@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from '@repo/db'
 import { redis } from "@repo/redis";
+
 import { AsyncHandler } from "../../../shared/api.handler";
 
 
@@ -29,6 +30,7 @@ export class HealthController {
         } catch (e) {
             console.log("HEALTH CHECK - REDIS ERROR ", e);
         }
+        
 
 
         const isHealthy = Object.values(checks).every((status) => status === "UP");

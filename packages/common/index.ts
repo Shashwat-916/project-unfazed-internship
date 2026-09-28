@@ -4,9 +4,7 @@ import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-
-dotenv.config({ path: path.resolve(__dirname, '.env') })
-
+dotenv.config({ path: path.resolve(__dirname, '../../.local.env') })
 
 export const API_PORT=process.env.API_PORT;
 export const WEBSOCKET_PORT=process.env.WEBSOCKET_PORT;

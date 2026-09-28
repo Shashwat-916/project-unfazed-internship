@@ -34,7 +34,7 @@ export class CloudinaryUpload {
     public async upload(
         buffer: Buffer,
         folder: string = "UNFAZED_PROFILEs"
-    ) {
+    ): Promise<{ secure_url: string }> {
 
         return new Promise((resolve, reject) => {
 
@@ -51,7 +51,11 @@ export class CloudinaryUpload {
                         return;
                     }
 
-                    resolve(result);
+                    if (result && result.secure_url) {
+                        resolve({ secure_url: result.secure_url });
+                    } else {
+                        reject(new Error("Upload failed, no secure_url returned"));
+                    }
                 }
             );
 

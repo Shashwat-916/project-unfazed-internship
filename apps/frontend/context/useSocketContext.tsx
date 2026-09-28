@@ -26,7 +26,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     useEffect(() => {
         if (!token) return;
 
-        const ws = new WebSocket(`ws://localhost:8080?token=${token}`);
+        const ws = new WebSocket(`wss://unfazed.site/ws/?token=${token}`);
 
         ws.onopen = () => {
             setIsConnected(true);

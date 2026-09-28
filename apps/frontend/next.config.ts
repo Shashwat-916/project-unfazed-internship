@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   typedRoutes: false,
+  serverExternalPackages: ["@prisma/client", "@repo/db"],
   images: {
     remotePatterns: [
       {

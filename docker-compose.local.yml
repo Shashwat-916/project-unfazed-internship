@@ -1,0 +1,93 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: unfazed_redis_local
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - unfazed-network
+
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/dockerfile.api
+    container_name: unfazed_api_local
+    ports:
+      - "5000:5000"
+    env_file:
+      - .local.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - unfazed-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/dockerfile.frontend
+    container_name: unfazed_frontend_local
+    ports:
+      - "3000:3000"
+    env_file:
+      - .local.env
+    depends_on:
+      - api
+    networks:
+      - unfazed-network
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/dockerfile.worker
+    container_name: unfazed_worker_local
+    env_file:
+      - .local.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - unfazed-network
+
+  websocket:
+    build:
+      context: .
+      dockerfile: docker/dockerfile.websocket
+    container_name: unfazed_websocket_local
+    ports:
+      - "8080:8080"
+    env_file:
+      - .local.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - unfazed-network
+
+  webrtc:
+    build:
+      context: .
+      dockerfile: docker/dockerfile.webrtc
+    container_name: unfazed_webrtc_local
+    ports:
+      - "8081:8081"
+    env_file:
+      - .local.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - unfazed-network
+
+
+networks:
+  unfazed-network:
+    driver: bridge

@@ -18,10 +18,9 @@ import conversationRouter from './routes/v1/conversation/conversation.Routes';
 import messageRouter from './routes/v1/message/message.Routes';
 import notificationRouter from './routes/v1/notification/notification.Routes';
 
-import { MinioUpload } from '@repo/minio';
 
 const app = express()
-app.use(cors())
+app.use(cors({ origin: true, credentials: true }))
 app.use(express.json())
 
 app.use("/api/v1", healthRouter);
@@ -41,12 +40,9 @@ app.use('/api/v1/notification', notificationRouter);
 
 app.use(ErrorMiddleware)
 
-app.listen(API_PORT, async () => {
-    try {
-        const minioService = new MinioUpload();
-        await minioService.initBucket();
-    } catch (error) {
-        console.error("Failed to initialize MinIO bucket:", error);
-    }
-    console.log(`server is running on port ${API_PORT}`)
+const port = API_PORT || 5000;
+
+app.listen(port, async () => {
+
+    console.log(`server is running on port ${port}`)
 })

@@ -17,8 +17,8 @@ WORKDIR /app
 COPY --from=installer /app/ .
 COPY --from=pruner /app/out/full/ .
 
-# Generate Prisma Client if it exists
-RUN cd packages/db && bunx prisma@5.21.1 generate || true
+# Generate Prisma client required by the shared DB package
+RUN cd packages/db && DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/postgres} bunx prisma generate
 
 # Build the websocket service
 RUN bunx turbo run build --filter=websocket
@@ -32,8 +32,7 @@ COPY --from=pruner /app/out/bun.lock ./bun.lock
 RUN bun install --frozen-lockfile --production
 
 COPY --from=builder /app/packages ./packages
-RUN cd packages/db && bunx prisma@5.21.1 generate || true
-
+RUN cd /app/packages/db && bun install --frozen-lockfile --production
 COPY --from=builder /app/apps/websocket/dist ./apps/websocket/dist
 
 WORKDIR /app/apps/websocket

@@ -99,21 +99,7 @@ export default function TherapistProfilePage() {
         setIsUploading(true);
 
         try {
-            const presignedRes = await therapistRoutes.getPresignedUrl();
-            if (!presignedRes.success) throw new Error("Could not get presigned URL");
-
-            const uploadUrl = presignedRes.data.url;
-
-            await fetch(uploadUrl, {
-                method: "PUT",
-                body: file,
-                headers: {
-                    "Content-Type": file.type,
-                },
-            });
-
-            const imageUrl = uploadUrl.split("?")[0];
-            const saveRes = await therapistRoutes.saveProfileImageUrl(imageUrl);
+            const saveRes = await therapistRoutes.uploadImage(file);
             
             if (saveRes.success) {
                 setProfileData({ ...profileData, profileImage: saveRes.data.profileImage });
